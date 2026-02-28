@@ -140,7 +140,7 @@
                         v-model="customerSearch"
                         type="text"
                         placeholder="البحث برقم/اسم/عنوان العميل..."
-                        class="w-full border border-blue-200 px-3 py-2 rounded-lg outline-none focus:border-blue-500"
+                        class="w-full bg-black/10 text-black border border-blue-200 px-3 py-2 rounded-lg outline-none focus:border-blue-500"
                     />
                     <!-- نتائج البحث -->
                     <div
@@ -341,7 +341,7 @@
                             v-model="newCustomer.name"
                             type="text"
                             placeholder="اسم العميل"
-                            class="w-full border border-gray-300 px-3 py-2 rounded-lg focus:border-blue-500 outline-none"
+                            class="w-full text-black border border-gray-300 px-3 py-2 rounded-lg focus:border-blue-500 outline-none"
                         />
                     </div>
                     <div>
@@ -350,7 +350,7 @@
                             v-model="newCustomer.phone"
                             type="text"
                             placeholder="01xxxxxxxxx"
-                            class="w-full border border-gray-300 px-3 py-2 rounded-lg focus:border-blue-500 outline-none"
+                            class="w-full text-black border border-gray-300 px-3 py-2 rounded-lg focus:border-blue-500 outline-none"
                         />
                     </div>
                     <div>
@@ -359,7 +359,7 @@
                             v-model="newCustomer.phone2"
                             type="text"
                             placeholder="01xxxxxxxxx"
-                            class="w-full border border-gray-300 px-3 py-2 rounded-lg focus:border-blue-500 outline-none"
+                            class="w-full text-black border border-gray-300 px-3 py-2 rounded-lg focus:border-blue-500 outline-none"
                         />
                     </div>
                     <div>
@@ -368,7 +368,7 @@
                             v-model="newCustomer.address1"
                             type="text"
                             placeholder="العنوان الرئيسي"
-                            class="w-full border border-gray-300 px-3 py-2 rounded-lg focus:border-blue-500 outline-none"
+                            class="w-full text-black border border-gray-300 px-3 py-2 rounded-lg focus:border-blue-500 outline-none"
                         />
                     </div>
                     <div>
@@ -377,7 +377,7 @@
                             v-model="newCustomer.address2"
                             type="text"
                             placeholder="عنوان ثانوي"
-                            class="w-full border border-gray-300 px-3 py-2 rounded-lg focus:border-blue-500 outline-none"
+                            class="w-full text-black border border-gray-300 px-3 py-2 rounded-lg focus:border-blue-500 outline-none"
                         />
                     </div>
                     <div>
@@ -386,7 +386,7 @@
                             v-model="newCustomer.address3"
                             type="text"
                             placeholder="عنوان ثالث"
-                            class="w-full border border-gray-300 px-3 py-2 rounded-lg focus:border-blue-500 outline-none"
+                            class="w-full text-black border border-gray-300 px-3 py-2 rounded-lg focus:border-blue-500 outline-none"
                         />
                     </div>
                     <div>
@@ -395,13 +395,13 @@
                             v-model="newCustomer.specialMark"
                             type="text"
                             placeholder="مثال: عميل VIP، باب أحمر"
-                            class="w-full border border-amber-300 px-3 py-2 rounded-lg focus:border-amber-500 outline-none bg-amber-50"
+                            class="w-full text-black border border-amber-300 px-3 py-2 rounded-lg focus:border-amber-500 outline-none bg-amber-50"
                         />
                     </div>
                     <div class="flex gap-3 pt-4">
                         <button
                             @click="showCustomerModal = false"
-                            class="flex-1 py-3 rounded-xl font-bold border border-gray-300 hover:bg-gray-50 transition"
+                            class="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold border border-gray-300 hover:bg-red-400 transition"
                         >
                             إلغاء
                         </button>

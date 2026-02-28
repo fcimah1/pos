@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
 			CategoriesSeeder::class,
 			ProductsSeeder::class,
 			DeliveryPersonsSeeder::class,
+			TableSeeder::class,
 		]);
 	}
 }
