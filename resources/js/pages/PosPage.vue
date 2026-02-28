@@ -48,58 +48,72 @@
         </div>
 
         <div class="flex-1 flex flex-col z-10 overflow-hidden">
+            <!-- شريط أزرار نوع الطلب -->
             <div
-                class="bg-white p-3 shadow-sm flex justify-between items-center border-b"
+                class="bg-white px-3 pt-3 pb-2 shadow-sm flex gap-2 items-center border-b"
             >
-                <div class="flex gap-2 mb-4">
-                    <button
-                        @click="setOrderType('dinein')"
-                        :class="[
-                            'px-5 py-2 rounded-lg font-semibold transition shadow-sm',
-                            orderType === 'dinein'
-                                ? 'bg-blue-600 text-white ring-2 ring-blue-600 ring-offset-2'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-400',
-                        ]"
-                    >
-                        🍽️ صالة
-                    </button>
-                    <button
-                        @click="setOrderType('takeaway')"
-                        :class="[
-                            'px-5 py-2 rounded-lg font-semibold transition shadow-sm',
-                            orderType === 'takeaway'
-                                ? 'bg-blue-600 text-white ring-2 ring-blue-600 ring-offset-2'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-400',
-                        ]"
-                    >
-                        🥡 تيك أواي
-                    </button>
-                    <button
-                        @click="setOrderType('delivery')"
-                        :class="[
-                            'px-5 py-2 rounded-lg font-semibold transition shadow-sm',
-                            orderType === 'delivery'
-                                ? 'bg-blue-600 text-white ring-2 ring-blue-600 ring-offset-2'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-400',
-                        ]"
-                    >
-                        🚚 توصيل
-                    </button>
-                </div>
-                
+                <button
+                    @click="setOrderType('dinein')"
+                    :class="[
+                        'px-5 py-2 rounded-lg font-semibold transition shadow-sm',
+                        orderType === 'dinein'
+                            ? 'bg-blue-600 text-white ring-2 ring-blue-600 ring-offset-2'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-400',
+                    ]"
+                >
+                    🍽️ صالة
+                </button>
+                <button
+                    @click="setOrderType('takeaway')"
+                    :class="[
+                        'px-5 py-2 rounded-lg font-semibold transition shadow-sm',
+                        orderType === 'takeaway'
+                            ? 'bg-blue-600 text-white ring-2 ring-blue-600 ring-offset-2'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-400',
+                    ]"
+                >
+                    🥡 تيك أواي
+                </button>
+                <button
+                    @click="setOrderType('delivery')"
+                    :class="[
+                        'px-5 py-2 rounded-lg font-semibold transition shadow-sm',
+                        orderType === 'delivery'
+                            ? 'bg-blue-600 text-white ring-2 ring-blue-600 ring-offset-2'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-400',
+                    ]"
+                >
+                    🚚 توصيل
+                </button>
+            </div>
+
+            <!-- شريط ثانٍ: بحث الصنف + رقم الطاولة (صالة) / بحث العميل (توصيل) -->
+            <div
+                class="bg-blue-50 px-3 py-2 border-b border-blue-100 flex gap-3 items-center min-h-[52px]"
+            >
+                <!-- حقل بحث الصنف — دائم الظهور -->
+                <input
+                    v-model="productSearch"
+                    type="text"
+                    placeholder="🔍 بحث عن صنف..."
+                    class="bg-black/10 text-black border border-blue-200 rounded-lg px-3 py-2 w-44 outline-none focus:border-blue-500 text-sm"
+                />
+
+                <!-- فاصل -->
+                <div class="h-6 w-px bg-blue-200"></div>
+
                 <!-- حقل رقم الطاولة للصالة -->
-                <div v-if="orderType === 'dinein'" class="mb-4 mr-4">
-                    <label class="block text-sm font-bold text-gray-700 mb-1">رقم الطاولة *</label>
+                <template v-if="orderType === 'dinein'">
+                    <label class="text-sm font-bold text-gray-700 whitespace-nowrap">🪑 رقم الطاولة *</label>
                     <div class="relative">
                         <select
                             v-model="tableNumber"
-                            class="w-48 border border-gray-300 px-3 py-2 pr-8 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none appearance-none bg-white cursor-pointer transition-all text-sm"
-                            style="max-height: 40px;"
+                            class="w-44 border border-gray-300 px-3 py-2 pr-8 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none appearance-none bg-white cursor-pointer transition-all text-sm"
                         >
                             <option value="" disabled>اختر الطاولة...</option>
-                            <option 
-                                v-for="table in tables.filter(t => t.is_available)" 
-                                :key="table.id" 
+                            <option
+                                v-for="table in tables.filter(t => t.is_available)"
+                                :key="table.id"
                                 :value="table.number"
                                 :disabled="table.occupied"
                                 :class="table.occupied ? 'text-red-500 bg-red-50' : 'text-green-600'"
@@ -115,73 +129,68 @@
                             </svg>
                         </div>
                     </div>
-                    <div v-if="tableNumber" class="mt-2 text-xs font-medium">
+                    <div v-if="tableNumber" class="text-xs font-medium">
                         <span v-if="tables.find(t => t.number === tableNumber)?.occupied" class="text-red-600">
-                            ⚠️ طاولة {{ tableNumber }} مشغولة حالياً
+                            ⚠️ مشغولة
                         </span>
                         <span v-else class="text-green-600">
-                            ✅ تم اختيار طاولة {{ tableNumber }}
+                            ✅ طاولة {{ tableNumber }}
                         </span>
                     </div>
-                </div>
-                <input
-                    type="text"
-                    placeholder="بحث عن صنف..."
-                    class="border rounded-lg px-4 py-2 w-64 focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-            </div>
+                </template>
 
-            <div
-                v-if="orderType === 'delivery'"
-                class="bg-blue-50 p-3 border-b border-blue-100 flex gap-3 items-center"
-            >
-                <div class="relative flex-1">
-                    <input
-                        v-model="customerSearch"
-                        type="text"
-                        placeholder="البحث برقم/اسم/عنوان العميل..."
-                        class="w-full bg-black/10 text-black border border-blue-200 px-3 py-2 rounded-lg outline-none focus:border-blue-500"
-                    />
-                    <!-- نتائج البحث -->
-                    <div
-                        v-if="searchResults.length > 0"
-                        class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-50 max-h-48 overflow-y-auto"
-                    >
+                <!-- حقل بحث العميل للتوصيل -->
+                <template v-if="orderType === 'delivery'">
+                    <div class="relative flex-1">
+                        <input
+                            v-model="customerSearch"
+                            type="text"
+                            placeholder="البحث برقم/اسم/عنوان العميل..."
+                            class="w-full bg-black/10 text-black border border-blue-200 px-3 py-2 rounded-lg outline-none focus:border-blue-500"
+                        />
+                        <!-- نتائج البحث -->
                         <div
-                            v-for="customer in searchResults"
-                            :key="customer.phone"
-                            @click="selectCustomer(customer)"
-                            class="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            v-if="searchResults.length > 0"
+                            class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-50 max-h-48 overflow-y-auto"
                         >
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-gray-800">{{ customer.name }}</span>
-                                <span class="text-sm text-gray-500">{{ customer.phone }}</span>
-                            </div>
-                            <div v-if="customer.specialMark" class="text-xs text-amber-600 mt-1">
-                                ⭐ {{ customer.specialMark }}
-                            </div>
-                            <div class="text-xs text-gray-400 mt-1">
-                                {{ customer.addresses.length }} عنوان/عناوين
+                            <div
+                                v-for="customer in searchResults"
+                                :key="customer.phone"
+                                @click="selectCustomer(customer)"
+                                class="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            >
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-gray-800">{{ customer.name }}</span>
+                                    <span class="text-sm text-gray-500">{{ customer.phone }}</span>
+                                </div>
+                                <div v-if="customer.specialMark" class="text-xs text-amber-600 mt-1">
+                                    ⭐ {{ customer.specialMark }}
+                                </div>
+                                <div class="text-xs text-gray-400 mt-1">
+                                    {{ customer.addresses.length }} عنوان/عناوين
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <button
-                    @click="showCustomerModal = true"
-                    class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition"
-                >
-                    + عميل جديد
-                </button>
-                <div
-                    v-if="currentCustomer"
-                    class="text-sm bg-white border border-blue-300 px-3 py-1 rounded-lg font-bold text-blue-800"
-                >
-                    👤 {{ currentCustomer.name }}
-                    <span v-if="currentCustomer.selectedAddress" class="block text-xs text-gray-500 mt-1">
-                        📍 {{ currentCustomer.selectedAddress }}
-                    </span>
-                </div>
+                    <button
+                        @click="showCustomerModal = true"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition whitespace-nowrap"
+                    >
+                        + عميل جديد
+                    </button>
+                    <div
+                        v-if="currentCustomer"
+                        class="text-sm bg-white border border-blue-300 px-3 py-1 rounded-lg font-bold text-blue-800"
+                    >
+                        👤 {{ currentCustomer.name }}
+                        <span v-if="currentCustomer.selectedAddress" class="block text-xs text-gray-500 mt-1">
+                            📍 {{ currentCustomer.selectedAddress }}
+                        </span>
+                    </div>
+                </template>
             </div>
+
+
 
             <div class="flex flex-1 overflow-hidden">
                 <div class="w-1/5 bg-white border-l border-gray-200 p-3 space-y-2 overflow-y-auto shadow-sm">
@@ -206,7 +215,7 @@
                     class="flex-1 p-4 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto content-start bg-gradient-to-br from-gray-50 to-gray-100"
                 >
                     <button
-                        v-for="item in categories[activeCategory]"
+                        v-for="item in filteredProducts"
                         :key="item.name"
                         @click="addItem(item)"
                         class="group bg-white rounded-2xl p-4 border border-gray-200 shadow-sm hover:shadow-xl hover:border-blue-400 hover:-translate-y-1 active:scale-95 transition-all duration-200 flex flex-col items-center justify-center gap-2 relative overflow-hidden"
@@ -473,6 +482,7 @@ const currentCustomer = ref(null);
 const taxRate = ref(10);
 const isLoading = ref(false);
 const customerSearch = ref("");
+const productSearch = ref("");
 const searchResults = ref([]);
 const selectedCustomerAddresses = ref([]);
 const showCustomerModal = ref(false);
@@ -724,6 +734,18 @@ const saveNewCustomer = async () => {
 };
 
 const categories = ref({});
+
+const filteredProducts = computed(() => {
+    const q = productSearch.value.trim().toLowerCase();
+    if (!q) {
+        // بدون بحث: عرض منتجات الفئة النشطة
+        return categories.value[activeCategory.value] || [];
+    }
+    // عند البحث: البحث في كافة المنتجات من جميع الفئات
+    return Object.values(categories.value)
+        .flat()
+        .filter(item => item.name.toLowerCase().includes(q));
+});
 
 const catName = (cat) => cat;
 
