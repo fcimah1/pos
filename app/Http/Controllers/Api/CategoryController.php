@@ -1,57 +1,72 @@
 <?php
 
-use App\Models\Category;
-use Illuminate\Http\Request;
+namespace App\Http\Controllers\Api;
 
-class CategoryController extends Controller
+use App\Services\CategoryService;
+use App\Traits\ApiResponseTrait;
+use Illuminate\Http\Request;
+use Throwable;
+
+class CategoryController
 {
+    use ApiResponseTrait;
+
+    public function __construct(private CategoryService $service) {}
+
     public function index(Request $request)
     {
-        $categories = Category::where('branch_id', $request->user()?->branch_id ?? 1)->get();
-        return response()->json($categories);
+        try {
+            $branchId = $request->user()?->branch_id ?? 1;
+            $categories = $this->service->getAll($branchId);
+            return $this->successResponse($categories);
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل جلب التصنيفات');
+        }
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'image' => 'nullable|string',
-        ]);
-
-        $category = Category::create([
-            'branch_id' => $request->user()?->branch_id ?? 1,
-            'name' => $validated['name'],
-            'image' => $validated['image'] ?? null,
-        ]);
-
-        return response()->json($category, 201);
+        try {
+            $data = $request->all();
+            $data['branch_id'] = $request->user()?->branch_id ?? 1;
+            $category = $this->service->create($data);
+            return $this->successResponse($category, 'تم إنشاء التصنيف بنجاح', 201);
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل إنشاء التصنيف');
+        }
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $category = Category::findOrFail($id);
-        return response()->json($category);
+        try {
+            $branchId = $request->user()?->branch_id ?? 1;
+            $category = $this->service->findById((int)$id, $branchId);
+            return $this->successResponse($category);
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'التصنيف غير موجود');
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $category = Category::where('id', $id)->where('branch_id', $request->user()?->branch_id ?? 1)->firstOrFail();
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'image' => 'nullable|string',
-        ]);
-
-        $category->update($validated);
-
-        return response()->json($category);
+        try {
+            $data = $request->all();
+            $data['branch_id'] = $request->user()?->branch_id ?? 1;
+            $category = $this->service->update((int)$id, $data);
+            return $this->successResponse($category, 'تم تحديث التصنيف بنجاح');
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل تحديث التصنيف');
+        }
     }
 
     public function destroy(Request $request, $id)
     {
-        $category = Category::where('id', $id)->where('branch_id', $request->user()?->branch_id ?? 1)->firstOrFail();
-        $category->delete();
-
-        return response()->json(['message' => 'Category deleted successfully']);
+        try {
+            $branchId = $request->user()?->branch_id ?? 1;
+            $this->service->delete((int)$id, $branchId);
+            return $this->successResponse(null, 'تم حذف التصنيف بنجاح', 200);
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل حذف التصنيف');
+        }
     }
 }

@@ -2,94 +2,71 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Product;
+use App\Services\ProductService;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use Throwable;
 
 class ProductController
 {
+    use ApiResponseTrait;
+
+    public function __construct(private ProductService $service) {}
+
     public function index(Request $request)
     {
-        $branchId = $request->user()?->branch_id ?? 1;
-
-        $products = Product::where('branch_id', $branchId)
-            ->where('is_active', true)
-            ->with('category')
-            ->when($request->category_id, function ($query) {
-                return $query->where('category_id', $query->request('category_id'));
-            })
-            ->when($request->search, function ($query) {
-                return $query->where('name', 'like', '%' . $query->request('search') . '%')
-                    ->orWhere('barcode', $query->request('search'));
-            })
-            ->paginate(50);
-
-        return response()->json($products);
+        try {
+            $branchId = $request->user()?->branch_id ?? 1;
+            $products = $this->service->getAll($branchId);
+            return $this->successResponse($products);
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل جلب المنتجات');
+        }
     }
 
-    public function show($id)
-    {
-        $product = Product::findOrFail($id);
-
-        return response()->json($product->load('category'));
-    }
-
-    public function byBarcode($barcode, Request $request)
-    {
-        $branchId = $request->user()?->branch_id ?? 1;
-
-        $product = Product::where('branch_id', $branchId)
-            ->where('barcode', $barcode)
-            ->where('is_active', true)
-            ->firstOrFail();
-
-        return response()->json($product);
-    }
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
-            'barcode' => 'required|string|unique:products,barcode',
-            'price' => 'required|numeric|min:0',
-            'cost' => 'required|numeric|min:0',
-            'image' => 'nullable|string',
-            'description' => 'nullable|string',
-        ]);
+        try {
+            $data = $request->all();
+            $data['branch_id'] = $request->user()?->branch_id ?? 1;
+            $product = $this->service->create($data);
+            return $this->successResponse($product, 'تم إنشاء المنتج بنجاح', 201);
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل إنشاء المنتج');
+        }
+    }
 
-        $product = Product::create([
-            'branch_id' => $request->user()?->branch_id ?? 1,
-            ...$validated,
-            'is_active' => true,
-        ]);
-
-        return response()->json($product, 201);
+    public function show(Request $request, $id)
+    {
+        try {
+            $branchId = $request->user()?->branch_id ?? 1;
+            $product = $this->service->findById((int)$id, $branchId);
+            return $this->successResponse($product);
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'المنتج غير موجود');
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $product = Product::where('id', $id)->where('branch_id', $request->user()?->branch_id ?? 1)->firstOrFail();
-
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
-            'barcode' => 'required|string|unique:products,barcode,' . $id,
-            'price' => 'required|numeric|min:0',
-            'cost' => 'required|numeric|min:0',
-            'image' => 'nullable|string',
-            'description' => 'nullable|string',
-            'is_active' => 'boolean',
-        ]);
-
-        $product->update($validated);
-
-        return response()->json($product);
+        try {
+            $data = $request->all();
+            $data['branch_id'] = $request->user()?->branch_id ?? 1;
+            $product = $this->service->update((int)$id, $data);
+            return $this->successResponse($product, 'تم تعديل المنتج بنجاح');
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل تعديل المنتج');
+        }
     }
 
     public function destroy(Request $request, $id)
     {
-        $product = Product::where('id', $id)->where('branch_id', $request->user()?->branch_id ?? 1)->firstOrFail();
-        $product->delete();
-
-        return response()->json(['message' => 'Product deleted successfully']);
+        try {
+            $branchId = $request->user()?->branch_id ?? 1;
+            $this->service->delete((int)$id, $branchId);
+            return $this->successResponse(null, 'تم حذف المنتج بنجاح');
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل حذف المنتج');
+        }
     }
 }

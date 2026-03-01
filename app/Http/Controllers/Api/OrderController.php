@@ -10,153 +10,114 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\OrderStatusRequest;
 use App\Services\OrderService;
+use App\Traits\ApiResponseTrait;
+use App\Http\Requests\SettleOrdersRequest;
+use Throwable;
 
 class OrderController
 {
-    public function store(OrderStoreRequest $request, OrderService $service)
+    use ApiResponseTrait;
+
+    public function __construct(
+        private readonly \App\Repository\Interface\OrderRepositoryInterface $repository,
+        private readonly OrderService $service
+    ) {}
+
+    public function store(OrderStoreRequest $request)
     {
-        $data = $request->validated();
-        $data['branch_id'] = (int)($request->user()?->branch_id ?? 1);
-        $data['user_id'] = (int)($request->user()?->id ?? 1);
-        $dto = CreateOrderDTO::fromArray($data);
-        $order = $service->create($dto);
-        
-        // تحديث حالة الطاولة إذا كان طلب صالة
-        if ($order->table_number) {
-            $this->updateTableAvailability($order->table_number, $order->branch_id);
+        try {
+            $data = $request->validated();
+            $data['branch_id'] = (int)($request->user()?->branch_id ?? 1);
+            $data['user_id'] = (int)($request->user()?->id ?? 1);
+
+            $dto = CreateOrderDTO::fromArray($data);
+            $order = $this->service->create($dto);
+
+            return $this->successResponse($order, 'تم إنشاء الطلب بنجاح', 201);
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل إنشاء الطلب');
         }
-        
-        return response()->json($order, 201);
     }
 
     public function index(Request $request)
     {
-        $branchId = $request->user()?->branch_id ?? 1;
-        
-        $orders = Order::where('branch_id', $branchId)
-            ->with('items.product', 'customer', 'deliveryPerson')
-            ->when($request->status, function ($query) use ($request) {
-                return $query->where('status', $request->status);
-            })
-            ->when($request->shift_id, function ($query) use ($request) {
-                return $query->where('shift_id', $request->shift_id);
-            })
-            ->latest()
-            ->paginate(50);
+        try {
+            $branchId = $request->user()?->branch_id ?? 1;
+            $filters = $request->only(['status', 'shift_id', 'customer_id']);
 
-        return response()->json($orders);
+            $orders = $this->repository->getAll($branchId, $filters);
+            return $this->successResponse($orders);
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل جلب الطلبات');
+        }
     }
 
-    // جلب الطلبات المعلقة (suspend)
     public function suspended(Request $request)
     {
-        $branchId = $request->user()?->branch_id ?? 1;
-        
-        $orders = Order::where('branch_id', $branchId)
-            ->where('status', 'suspended')
-            ->with('items.product', 'customer')
-            ->latest()
-            ->get();
-
-        return response()->json($orders);
+        try {
+            $branchId = $request->user()?->branch_id ?? 1;
+            $orders = $this->repository->getSuspended($branchId);
+            return $this->successResponse($orders);
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل جلب الطلبات المعلقة');
+        }
     }
 
     public function show($id, Request $request)
     {
-        $branchId = $request->user()?->branch_id ?? 1;
-        
-        $order = Order::where('branch_id', $branchId)
-            ->with('items.product', 'customer', 'deliveryPerson', 'payments')
-            ->findOrFail($id);
-
-        return response()->json($order);
+        try {
+            $branchId = $request->user()?->branch_id ?? 1;
+            $order = $this->repository->findById($id, $branchId);
+            return $this->successResponse($order);
+        } catch (Throwable $e) {    
+            return $this->handleException($e, 'الطلب غير موجود');
+        }
     }
 
     public function update(OrderStoreRequest $request, $id)
     {
-        Log::info('Updating order', ['id' => $id, 'data' => $request->all()]);
-        
-        $validated = $request->validated();
-        $branchId = $request->user()?->branch_id ?? 1;
-        
-        $order = Order::where('branch_id', $branchId)->findOrFail($id);
-        
-        // تحديث بيانات الطلب
-        $order->update([
-            'customer_id' => $validated['customer_id'] ?? $order->customer_id,
-            'delivery_address_id' => $validated['delivery_address_id'] ?? $order->delivery_address_id,
-            'delivery_person_id' => $validated['delivery_person_id'] ?? $order->delivery_person_id,
-            'notes' => $validated['notes'] ?? $order->notes,
-        ]);
-        
-        // حذف العناصر القديمة وإضافة الجديدة
-        $order->items()->delete();
-        $subtotal = 0;
-        
-        foreach ($validated['items'] as $item) {
-            $lineTotal = $item['unit_price'] * $item['quantity'];
-            $subtotal += $lineTotal;
-            
-            $order->items()->create([
-                'product_id' => $item['product_id'] ?? null,
-                'quantity' => $item['quantity'],
-                'unit_price' => $item['unit_price'],
-                'subtotal' => $lineTotal,
-            ]);
+        try {
+            Log::info('Updating order', ['id' => $id, 'data' => $request->all()]);
+
+            $data = $request->validated();
+            $data['branch_id'] = (int)($request->user()?->branch_id ?? 1);
+            $data['user_id'] = (int)($request->user()?->id ?? 1);
+
+            $dto = CreateOrderDTO::fromArray($data);
+            $order = $this->repository->update($id, $dto);
+
+            return $this->successResponse($order, 'تم تحديث الطلب بنجاح');
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل تحديث الطلب');
         }
-        
-        // إعادة حساب المجاميع
-        $branch = $order->branch;
-        $discountAmount = $validated['discount_amount'] ?? 0;
-        $deliveryCharge = $validated['delivery_charge'] ?? 0;
-        $taxAmount = ($subtotal - $discountAmount) * ($branch->tax_rate / 100);
-        $totalAmount = $subtotal + $taxAmount - $discountAmount + $deliveryCharge;
-        
-        $order->update([
-            'subtotal' => $subtotal,
-            'tax_amount' => $taxAmount,
-            'discount_amount' => $discountAmount,
-            'delivery_charge' => $deliveryCharge,
-            'total_amount' => $totalAmount,
-        ]);
-        
-        // تحديث حالة الطاولة إذا كان طلب صالة
-        if ($order->table_number) {
-            $this->updateTableAvailability($order->table_number, $order->branch_id);
-        }
-        
-        return response()->json($order->load('items.product', 'customer'));
     }
 
     public function updateStatus(OrderStatusRequest $request, $id)
     {
-        $validated = $request->validated();
+        try {
+            $validated = $request->validated();
+            $branchId = $request->user()?->branch_id ?? 1;
 
-        $branchId = $request->user()?->branch_id ?? 1;
-        $order = Order::where('branch_id', $branchId)->findOrFail($id);
-
-        $order->update([
-            'status' => $validated['status'],
-            'completed_at' => $validated['status'] === 'completed' ? now() : $order->completed_at,
-        ]);
-        
-        // تحديث حالة الطاولة إذا كان طلب صالة
-        if ($order->table_number) {
-            $this->updateTableAvailability($order->table_number, $order->branch_id);
+            $order = $this->repository->updateStatus($id, $validated['status'], $branchId);
+            return $this->successResponse($order, 'تم تحديث حالة الطلب بنجاح');
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل تحديث حالة الطلب');
         }
-
-        return response()->json($order);
     }
-    
-    private function updateTableAvailability($tableNumber, $branchId)
+
+    public function settleOrders(SettleOrdersRequest $request)
     {
-        $hasActiveOrders = Order::where('table_number', $tableNumber)
-            ->where('branch_id', $branchId)
-            ->whereIn('status', ['open', 'suspended'])
-            ->exists();
-            
-        Table::where('number', $tableNumber)
-            ->where('branch_id', $branchId)
-            ->update(['is_available' => !$hasActiveOrders]);
+        try {
+            $data = $request->validated();
+
+            $this->service->settleDriverOrders(
+                (int)$data['driver_id'],
+                $data['order_ids']
+            );
+
+            return $this->successResponse(null, 'تم تسوية الطلبات بنجاح');
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل تسوية الطلبات');
+        }
     }
 }

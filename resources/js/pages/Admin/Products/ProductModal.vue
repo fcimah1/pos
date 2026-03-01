@@ -1,20 +1,25 @@
 <template>
     <div
         v-if="show"
-        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in"
     >
         <div
-            class="bg-gray-800 rounded-2xl w-full max-w-lg border border-gray-700 shadow-2xl overflow-hidden animate-fade-in-up"
+            class="bg-gray-800 rounded-2xl w-full max-w-lg border border-gray-700 shadow-2xl overflow-hidden animate-slide-up"
         >
             <div
-                class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800"
+                class="p-5 border-b border-gray-700 flex justify-between items-center bg-gray-800/50"
             >
-                <h3 class="text-lg font-bold text-white">
-                    {{ product ? "Edit Product" : "New Product" }}
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                    <span class="p-2 bg-blue-600/20 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </span>
+                    {{ product ? "تعديل المنتج" : "إضافة منتج جديد" }}
                 </h3>
                 <button
                     @click="$emit('close')"
-                    class="text-gray-400 hover:text-white transition-colors"
+                    class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-xl transition-all"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -33,43 +38,43 @@
                 </button>
             </div>
 
-            <form @submit.prevent="submit" class="p-6 space-y-4">
-                <div class="space-y-1">
-                    <label class="text-sm font-medium text-gray-400"
-                        >Product Name</label
+            <form @submit.prevent="submit" class="p-6 space-y-5 text-right" dir="rtl">
+                <div class="space-y-1.5">
+                    <label class="text-sm font-bold text-gray-400 mr-1"
+                        >اسم المنتج</label
                     >
                     <input
                         v-model="form.name"
                         type="text"
                         required
-                        class="w-full bg-gray-700 border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
-                        placeholder="e.g. Cheese Burger"
+                        class="w-full bg-gray-900 border-gray-700 rounded-xl text-white focus:ring-2 focus:ring-blue-500 transition-all px-4 py-3 placeholder-gray-600"
+                        placeholder="مثال: شاورما دجاج"
                     />
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="text-sm font-medium text-gray-400"
-                            >Barcode</label
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-bold text-gray-400 mr-1"
+                            >الباركود</label
                         >
                         <input
                             v-model="form.barcode"
                             type="text"
                             required
-                            class="w-full bg-gray-700 border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
-                            placeholder="Scan or Type"
+                            class="w-full bg-gray-900 border-gray-700 rounded-xl text-white focus:ring-2 focus:ring-blue-500 transition-all px-4 py-3 placeholder-gray-600"
+                            placeholder="امسح أو اكتب الكود"
                         />
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-sm font-medium text-gray-400"
-                            >Category</label
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-bold text-gray-400 mr-1"
+                            >الصنف</label
                         >
                         <select
                             v-model="form.category_id"
                             required
-                            class="w-full bg-gray-700 border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500"
+                            class="w-full bg-gray-900 border-gray-700 rounded-xl text-white focus:ring-2 focus:ring-blue-500 transition-all px-4 py-3"
                         >
-                            <option value="" disabled>Select Category</option>
+                            <option value="" disabled>اختر الصنف</option>
                             <option
                                 v-for="cat in categories"
                                 :key="cat.id"
@@ -82,45 +87,64 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="text-sm font-medium text-gray-400"
-                            >Price ($)</label
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-bold text-gray-400 mr-1"
+                            >السعر (ج.م)</label
                         >
                         <input
                             v-model="form.price"
                             type="number"
                             step="0.01"
                             required
-                            class="w-full bg-gray-700 border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
+                            class="w-full bg-gray-900 border-gray-700 rounded-xl text-white focus:ring-2 focus:ring-blue-500 transition-all px-4 py-3"
                         />
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-sm font-medium text-gray-400"
-                            >Cost ($)</label
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-bold text-gray-400 mr-1"
+                            >التكلفة (ج.م)</label
                         >
                         <input
-                            v-model="form.cost"
+                            v-model="form.cost_price"
                             type="number"
                             step="0.01"
                             required
-                            class="w-full bg-gray-700 border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
+                            class="w-full bg-gray-900 border-gray-700 rounded-xl text-white focus:ring-2 focus:ring-blue-500 transition-all px-4 py-3"
                         />
                     </div>
                 </div>
 
-                <div class="pt-4 flex justify-end gap-3">
+                <!-- أيقونة المنتج -->
+                <div class="space-y-1.5">
+                    <label class="text-sm font-bold text-gray-400 mr-1">أيقونة المنتج (Emoji)</label>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gray-700 rounded-xl border border-gray-600 flex items-center justify-center text-2xl flex-shrink-0">
+                            {{ form.icon || '🍽️' }}
+                        </div>
+                        <input
+                            v-model="form.icon"
+                            type="text"
+                            maxlength="4"
+                            class="flex-1 bg-gray-900 border-gray-700 rounded-xl text-white focus:ring-2 focus:ring-blue-500 transition-all px-4 py-3 placeholder-gray-600 text-2xl text-center"
+                            placeholder="🍽️"
+                        />
+                    </div>
+                    <p class="text-xs text-gray-500">اكتب أي Emoji كأيقونة للمنتج (مثال: 🍔 🍕 🥗 🥩)</p>
+                </div>
+
+                <!-- أزرار الحفظ -->
+                <div class="pt-4 flex justify-end gap-3 border-t border-gray-700/50">
                     <button
                         type="button"
                         @click="$emit('close')"
-                        class="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700 font-medium transition-colors"
+                        class="px-6 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-gray-700 font-bold transition-all"
                     >
-                        Cancel
+                        إلغاء
                     </button>
                     <button
                         type="submit"
-                        class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-blue-900/20 transition-all"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-900/40 transition-all flex items-center gap-2"
                     >
-                        Save Product
+                        <span>حفظ المنتج</span> ✓
                     </button>
                 </div>
             </form>
@@ -145,7 +169,8 @@ const form = reactive({
     barcode: "",
     category_id: "",
     price: "",
-    cost: "",
+    cost_price: "",
+    icon: "",
 });
 
 watch(
@@ -157,14 +182,16 @@ watch(
             form.barcode = newVal.barcode;
             form.category_id = newVal.category?.id;
             form.price = newVal.price;
-            form.cost = newVal.cost;
+            form.cost_price = newVal.cost_price;
+            form.icon = newVal.icon || "";
         } else {
             form.id = null;
             form.name = "";
             form.barcode = "";
             form.category_id = "";
             form.price = "";
-            form.cost = "";
+            form.cost_price = "";
+            form.icon = "";
         }
     },
     { immediate: true },

@@ -15,13 +15,13 @@ class OrderService
     public function create(CreateOrderDTO $dto)
     {
         $branch = Branch::findOrFail($dto->branch_id);
-        
+
         // البحث عن shift مفتوح أو إنشاء واحد جديد
         $openShift = Shift::where('branch_id', $dto->branch_id)
             ->where('status', 'open')
             ->latest()
             ->first();
-        
+
         if (!$openShift) {
             $openShift = Shift::create([
                 'branch_id' => $dto->branch_id,
@@ -67,10 +67,18 @@ class OrderService
             'payment_status' => $dto->payment_status ?? 'unpaid',
         ];
 
-        $order = $this->repo->create($orderData, $itemsArray);
+        $orderData['items'] = $itemsArray;
+        $finalDto = CreateOrderDTO::fromArray($orderData);
+
+        $order = $this->repo->create($finalDto);
 
         NewOrderEvent::dispatch($order);
 
         return $order;
+    }
+
+    public function settleDriverOrders(int $driverId, array $orderIds): bool
+    {
+        return $this->repo->settleDriverOrders($driverId, $orderIds);
     }
 }

@@ -11,4 +11,5 @@ interface UserRepositoryInterface
     public function create(array $data): User;
 
     public function find(int $id): ?User;
+    public function getByBranchId(int $branchId): \Illuminate\Support\Collection;
 }

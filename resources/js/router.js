@@ -6,6 +6,7 @@ import AdminDashboard from './pages/Admin/AdminDashboard.vue';
 import ProductIndex from './pages/Admin/Products/Index.vue';
 
 import CategoryIndex from './pages/Admin/Categories/Index.vue';
+import StaffIndex from './pages/Admin/Staff/Index.vue';
 
 const routes = [
     {
@@ -23,9 +24,10 @@ const routes = [
         component: AdminLayout,
         meta: { requiresAuth: true },
         children: [
-            // { path: '', name: 'Dashboard', component: AdminDashboard },
-            // { path: 'products', name: 'Products', component: ProductIndex },
-            // { path: 'categories', name: 'Categories', component: CategoryIndex },
+            { path: '', name: 'Dashboard', component: AdminDashboard },
+            { path: 'products', name: 'Products', component: ProductIndex },
+            { path: 'categories', name: 'Categories', component: CategoryIndex },
+            { path: 'staff', name: 'Staff', component: StaffIndex },
         ]
     }
 ];

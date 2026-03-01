@@ -82,17 +82,21 @@ class ProductsSeeder extends Seeder
             $categoryId = $cat($p['slug']);
             if (!$categoryId) continue;
 
-            DB::table('products')->updateOrInsert(
-                ['branch_id' => $branchId, 'barcode' => $p['barcode']],
-                [
-                    'branch_id'   => $branchId,
-                    'category_id' => $categoryId,
-                    'name'        => $p['name'],
-                    'price'       => $p['price'],
-                    'barcode'     => $p['barcode'],
-                    'is_active'   => true,
-                ]
-            );
+            $productId = DB::table('products')->insertGetId([
+                'branch_id'   => $branchId,
+                'category_id' => $categoryId,
+                'name'        => $p['name'],
+                'price'       => 0, // Legacy column
+                'barcode'     => $p['barcode'],
+                'is_active'   => true,
+            ]);
+
+            DB::table('product_variations')->insert([
+                'product_id' => $productId,
+                'size_name'  => 'عادي',
+                'price'      => $p['price'],
+                'barcode'    => $p['barcode'],
+            ]);
         }
     }
 }

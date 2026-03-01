@@ -1,11 +1,11 @@
 <template>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Stat Card -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in text-right" dir="rtl">
+        <!-- بطاقة إحصائية: إجمالي المبيعات -->
         <div
-            class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-lg"
+            class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-lg group hover:border-blue-500/50 transition-all shadow-blue-900/10"
         >
             <div class="flex items-center justify-between mb-4">
-                <div class="p-3 bg-blue-600/10 text-blue-500 rounded-xl">
+                <div class="p-3 bg-blue-600/10 text-blue-500 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-all">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-6 w-6"
@@ -21,33 +21,17 @@
                         />
                     </svg>
                 </div>
-                <span
-                    class="text-xs font-bold text-green-500 flex items-center gap-1"
-                >
-                    +12.5%
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-3 w-3"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
-                        <path
-                            fill-rule="evenodd"
-                            d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
-                            clip-rule="evenodd"
-                        />
-                    </svg>
-                </span>
             </div>
-            <h3 class="text-gray-400 text-sm font-medium">Total Sales</h3>
-            <p class="text-2xl font-bold text-white mt-1">$ 24,500.00</p>
+            <h3 class="text-gray-400 text-sm font-bold font-tajawal">إجمالي المبيعات</h3>
+            <p class="text-2xl font-black text-white mt-1">{{ stats.total_sales.toLocaleString() }} <span class="text-xs text-gray-500 font-normal">ج.م</span></p>
         </div>
 
+        <!-- بطاقة إحصائية: إجمالي الطلبات -->
         <div
-            class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-lg"
+            class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-lg group hover:border-purple-500/50 transition-all shadow-purple-900/10"
         >
             <div class="flex items-center justify-between mb-4">
-                <div class="p-3 bg-purple-600/10 text-purple-500 rounded-xl">
+                <div class="p-3 bg-purple-600/10 text-purple-500 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-all">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-6 w-6"
@@ -63,21 +47,17 @@
                         />
                     </svg>
                 </div>
-                <span
-                    class="text-xs font-bold text-green-500 flex items-center gap-1"
-                >
-                    +5 New
-                </span>
             </div>
-            <h3 class="text-gray-400 text-sm font-medium">Total Orders</h3>
-            <p class="text-2xl font-bold text-white mt-1">1,245</p>
+            <h3 class="text-gray-400 text-sm font-bold font-tajawal">إجمالي الطلبات اليوم</h3>
+            <p class="text-2xl font-black text-white mt-1">{{ stats.orders_count }} <span class="text-xs text-gray-500 font-normal">طلب</span></p>
         </div>
 
+        <!-- بطاقة إحصائية: المنتجات -->
         <div
-            class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-lg"
+            class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-lg group hover:border-yellow-500/50 transition-all shadow-yellow-900/10"
         >
             <div class="flex items-center justify-between mb-4">
-                <div class="p-3 bg-yellow-600/10 text-yellow-500 rounded-xl">
+                <div class="p-3 bg-yellow-600/10 text-yellow-500 rounded-xl group-hover:bg-yellow-600 group-hover:text-white transition-all">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-6 w-6"
@@ -94,15 +74,16 @@
                     </svg>
                 </div>
             </div>
-            <h3 class="text-gray-400 text-sm font-medium">Products</h3>
-            <p class="text-2xl font-bold text-white mt-1">48</p>
+            <h3 class="text-gray-400 text-sm font-bold font-tajawal">عدد الأصناف</h3>
+            <p class="text-2xl font-black text-white mt-1">{{ stats.products_count }} <span class="text-xs text-gray-500 font-normal">صنف</span></p>
         </div>
 
+        <!-- بطاقة إحصائية: العملاء -->
         <div
-            class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-lg"
+            class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-lg group hover:border-green-500/50 transition-all shadow-green-900/10"
         >
             <div class="flex items-center justify-between mb-4">
-                <div class="p-3 bg-green-600/10 text-green-500 rounded-xl">
+                <div class="p-3 bg-green-600/10 text-green-500 rounded-xl group-hover:bg-green-600 group-hover:text-white transition-all">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-6 w-6"
@@ -119,8 +100,44 @@
                     </svg>
                 </div>
             </div>
-            <h3 class="text-gray-400 text-sm font-medium">Customers</h3>
-            <p class="text-2xl font-bold text-white mt-1">840</p>
+            <h3 class="text-gray-400 text-sm font-bold font-tajawal">إجمالي العملاء</h3>
+            <p class="text-2xl font-black text-white mt-1">{{ stats.customers_count || 0 }} <span class="text-xs text-gray-500 font-normal">عمیل</span></p>
         </div>
     </div>
 </template>
+
+<script setup>
+import { ref, onMounted } from "vue";
+import { useApi } from "../../composables/useApi";
+
+const { apiCall } = useApi();
+const stats = ref({
+    total_sales: 0,
+    orders_count: 0,
+    products_count: 0,
+    customers_count: 0
+});
+
+onMounted(() => {
+    fetchStats();
+});
+
+const fetchStats = async () => {
+    try {
+        // Fetch daily report for current branch
+        const report = await apiCall("/reports/daily");
+        stats.value.total_sales = report.total_sales;
+        stats.value.orders_count = report.orders_count;
+
+        // Fetch counts for products and customers
+        const products = await apiCall("/products");
+        stats.value.products_count = (products.data || products).length;
+
+        const customers = await apiCall("/customers");
+        stats.value.customers_count = (customers.data || customers).length;
+    } catch (err) {
+        console.error("Error fetching dashboard stats:", err);
+    }
+};
+</script>
+

@@ -2,33 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Table;
+use App\Services\TableService;
 use Illuminate\Http\Request;
 
 class TableController
 {
+    public function __construct(private TableService $service) {}
+
     public function index(Request $request)
     {
         $branchId = $request->user()?->branch_id ?? 1;
-        
-        $tables = Table::where('branch_id', $branchId)
-            ->where('is_active', true)
-            ->with(['orders' => function ($query) {
-                $query->whereIn('status', ['open', 'suspended']);
-            }])
-            ->get()
-            ->map(function ($table) {
-                $occupied = $table->orders->isNotEmpty();
-                return [
-                    'id' => $table->id,
-                    'number' => $table->number,
-                    'capacity' => $table->capacity,
-                    'is_available' => $table->is_available && !$occupied,
-                    'occupied' => $occupied,
-                    'current_order' => $table->orders->first(),
-                ];
-            });
+        return response()->json($this->service->getAll($branchId));
+    }
 
-        return response()->json($tables);
+    public function updateStatus(Request $request, $id)
+    {
+        $isAvailable = $request->boolean('is_available');
+        return response()->json($this->service->updateStatus((int)$id, $isAvailable));
     }
 }

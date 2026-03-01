@@ -17,6 +17,7 @@
     "vue-router": "^5.0.2"
   },
   "dependencies": {
-    "@fontsource/tajawal": "^5.2.7"
+    "@fontsource/tajawal": "^5.2.7",
+    "sweetalert2": "^11.26.21"
   }
 }

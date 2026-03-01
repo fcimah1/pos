@@ -18,6 +18,8 @@ class User extends Authenticatable
         'password',
         'branch_id',
         'role_id',
+        'designation_id',
+        'department_id',
         'is_active',
     ];
 
@@ -40,6 +42,16 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function designation(): BelongsTo
+    {
+        return $this->belongsTo(Designation::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 
     public function shifts(): HasMany

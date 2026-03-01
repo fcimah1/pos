@@ -21,4 +21,11 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::find($id);
     }
+
+    public function getByBranchId(int $branchId): \Illuminate\Support\Collection
+    {
+        return User::where('branch_id', $branchId)
+            ->with(['designation', 'department'])
+            ->get();
+    }
 }

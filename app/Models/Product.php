@@ -15,16 +15,15 @@ class Product extends Model
         'sku',
         'barcode',
         'description',
-        'price',
         'cost_price',
         'stock_quantity',
         'low_stock_level',
         'image_url',
+        'icon',
         'is_active',
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
         'cost_price' => 'decimal:2',
         'is_active' => 'boolean',
     ];
@@ -42,5 +41,10 @@ class Product extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function variations(): HasMany
+    {
+        return $this->hasMany(ProductVariation::class);
     }
 }
