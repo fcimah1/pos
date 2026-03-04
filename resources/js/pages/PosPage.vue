@@ -776,13 +776,19 @@ const assignDriver = async (index) => {
                 customer_id: ord.customer?.id ?? null,
                 delivery_address_id: ord.customer?.addressId ?? null,
                 delivery_person_id: driverId,
-                delivery_charge: 0,
+                delivery_charge: parseFloat(ord.deliveryCharge || 0),
                 items,
                 status: "delivering",
                 payment_status: "unpaid",
             },
         });
         await loadSuspendedOrders();
+        printOrderReceipt({
+            ...ord,
+            delivery_person_id: driverId,
+            type: 'delivery',
+            delivery_charge: parseFloat(ord.deliveryCharge ?? ord.delivery_charge ?? 0)
+        });
         Swal.fire({
             icon: "success",
             title: "تم طباعة الفاتوره",
@@ -796,6 +802,85 @@ const assignDriver = async (index) => {
     } finally {
         isLoading.value = false;
     }
+};
+
+// طباعة مبسطة للفاتورة
+const printOrderReceipt = (order) => {
+    try {
+        const items = (order.items || []).map(it => `
+            <tr>
+                <td style="padding:4px 0">${it.name}</td>
+                <td style="padding:4px 0; text-align:center">${it.qty}</td>
+                <td style="padding:4px 0; text-align:left">${parseFloat(it.price).toFixed(2)} ج</td>
+            </tr>
+        `).join('');
+        const itemsSum = (order.items || []).reduce((s,i)=> s + (parseFloat(i.price)*parseFloat(i.qty||1)), 0);
+        const delivery = parseFloat(order.delivery_charge ?? order.deliveryCharge ?? 0) || 0;
+        const total = parseFloat((order.total_amount ?? (itemsSum + delivery))).toFixed(2);
+        const customer = order.customer?.name ? `${order.customer.name}${order.customer.phone ? ' - ' + order.customer.phone : ''}` : 'زائر';
+        const now = new Date().toLocaleString('ar-EG');
+        const t = String(order.type || order.order_type || '').toLowerCase();
+        const label = t === 'delivery' ? 'فاتورة توصيل' : (t === 'takeaway' ? 'فاتورة تيك أواي' : 'فاتورة صالة');
+        const subMeta = t === 'delivery'
+            ? (order.customer?.selectedAddress ? `<div class="meta">العنوان: ${order.customer.selectedAddress}</div>` : '')
+            : (t === 'table' || t === 'dinein') && order.table_number ? `<div class="meta">الطاولة: ${order.table_number}</div>` : '';
+        const customerMeta = t === 'delivery' ? `<div class="meta">العميل: ${customer}</div>` : '';
+        const driverMeta = (t === 'delivery' && order.delivery_person_id) ? `<div class="meta">المندوب: #${order.delivery_person_id}</div>` : '';
+        const printedNo = (t === 'table' || t === 'dinein')
+            ? (order.shift_order_number ?? order.shiftOrderNumber ?? order.order_number ?? ('#' + order.id))
+            : (order.order_number ?? ('#' + order.id));
+        const html = `
+            <html dir="rtl">
+            <head>
+                <meta charset="utf-8" />
+                <title>${label} #${printedNo}</title>
+                <style>
+                    body { font-family: Tahoma, Arial, sans-serif; margin: 12px; color:#111; }
+                    .title { text-align:center; font-weight:900; font-size:16px; }
+                    .meta { font-weight:700; font-size:12px; margin:6px 0; }
+                    table { width:100%; border-collapse:collapse; font-size:12px; }
+                    th,td { border-bottom:1px dashed #ddd; }
+                    .total { text-align:left; font-weight:900; font-size:14px; padding-top:8px; }
+                    .muted { color:#666; font-size:11px; }
+                </style>
+            </head>
+            <body>
+                <div class="title">${label}</div>
+                <div class="meta">الطلب: ${printedNo}</div>
+                ${customerMeta}
+                ${driverMeta}
+                ${subMeta}
+                <div class="muted">${now}</div>
+                <hr />
+                <table>
+                    <thead>
+                        <tr><th style="text-align:right">الصنف</th><th style="text-align:center">الكمية</th><th style="text-align:left">السعر</th></tr>
+                    </thead>
+                    <tbody>
+                        ${items}
+                        ${delivery > 0 ? `
+                        <tr>
+                            <td colspan="2" style="padding:6px 0; text-align:right; font-weight:900">خدمة التوصيل</td>
+                            <td style="padding:6px 0; text-align:left; font-weight:900">${delivery.toFixed(2)} ج</td>
+                        </tr>` : ''}
+                    </tbody>
+                </table>
+                <div class="total">الإجمالي: ${total} ج</div>
+                <div class="muted" style="text-align:center; margin-top:10px">شكراً لزيارتكم</div>
+            </body>
+            </html>
+        `;
+        const win = window.open('', '_blank', 'width=480,height=640');
+        if (!win) return;
+        win.document.open();
+        win.document.write(html);
+        win.document.close();
+        win.focus();
+        setTimeout(() => {
+            win.print();
+            setTimeout(() => win.close(), 300);
+        }, 300);
+    } catch (e) { /* ignore */ }
 };
 
 // اختيار الطاولة الشبكي
@@ -897,6 +982,7 @@ const loadSuspendedOrders = async () => {
                   }
                 : null,
             driverName: order.delivery_person?.name || order.deliveryPerson?.name || null,
+            deliveryCharge: parseFloat(order.delivery_charge || 0),
             hasDriver: !!(order.delivery_person_id || order.deliveryPerson?.id || order.delivery_person?.id),
             items: order.items.map((item) => ({
                 id: item.product_id,
@@ -1349,20 +1435,41 @@ const suspendOrder = async () => {
             payment_status: "unpaid",
         };
 
+        let savedOrderId = null;
+        let savedOrderNumber = null;
+        let savedShiftNumber = null;
         if (editingIndex.value !== null) {
-            await apiCall(
+            const resp = await apiCall(
                 `/orders/${suspendedOrders.value[editingIndex.value].id}`,
                 { method: "POST", body: orderData },
             );
+            savedOrderId = suspendedOrders.value[editingIndex.value].id;
+            savedOrderNumber = suspendedOrders.value[editingIndex.value].order_number ?? null;
         } else {
-            await apiCall("/orders", { method: "POST", body: orderData });
+            const saved = await apiCall("/orders", { method: "POST", body: orderData });
+            savedOrderId = saved?.id ?? saved?.data?.id ?? null;
+            savedOrderNumber = saved?.order_number ?? saved?.data?.order_number ?? null;
+            savedShiftNumber = saved?.shift_order_number ?? saved?.data?.shift_order_number ?? null;
         }
         await loadSuspendedOrders();
         await loadTables();
+
+        printOrderReceipt({
+            id: savedOrderId,
+            order_number: savedOrderNumber,
+            shift_order_number: savedShiftNumber,
+            items: invoice.value.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+            customer: currentCustomer.value || null,
+            delivery_person_id: orderData.delivery_person_id || null,
+            type: orderData.type,
+            table_number: orderData.table_number || null,
+            delivery_charge: orderData.delivery_charge || 0
+        });
         invoice.value = [];
         currentCustomer.value = null;
         editingIndex.value = null;
         tableNumber.value = "";
+        selectedDriverId.value = null;
         selectedDriverId.value = null;
     } catch (err) {
         alert(err.message);
@@ -1427,6 +1534,16 @@ const payOrder = async () => {
 
         await loadSuspendedOrders();
         await loadTables();
+
+        if (orderType.value === 'takeaway') {
+            printOrderReceipt({
+                id: orderId,
+                order_number: null,
+                items: invoice.value.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+                customer: currentCustomer.value || null,
+                type: 'takeaway'
+            });
+        }
 
         Swal.fire({
             icon: "success",
