@@ -43,7 +43,13 @@ class OrderController
     {
         try {
             $branchId = $request->user()?->branch_id ?? 1;
-            $filters = $request->only(['status', 'shift_id', 'customer_id']);
+            $filters = $request->only(['status', 'shift_id', 'customer_id', 'delivery_person_id', 'is_driver_settled']);
+            // دعم تمرير status_in كقائمة
+            if ($request->has('status_in')) {
+                $filters['status_in'] = is_array($request->status_in)
+                    ? $request->status_in
+                    : explode(',', (string)$request->status_in);
+            }
 
             $orders = $this->repository->getAll($branchId, $filters);
             return $this->successResponse($orders);
@@ -69,7 +75,7 @@ class OrderController
             $branchId = $request->user()?->branch_id ?? 1;
             $order = $this->repository->findById($id, $branchId);
             return $this->successResponse($order);
-        } catch (Throwable $e) {    
+        } catch (Throwable $e) {
             return $this->handleException($e, 'الطلب غير موجود');
         }
     }
@@ -84,7 +90,7 @@ class OrderController
             $data['user_id'] = (int)($request->user()?->id ?? 1);
 
             $dto = CreateOrderDTO::fromArray($data);
-            $order = $this->repository->update($id, $dto);
+            $order = $this->service->update($id, $dto);
 
             return $this->successResponse($order, 'تم تحديث الطلب بنجاح');
         } catch (Throwable $e) {

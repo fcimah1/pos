@@ -27,6 +27,7 @@ readonly class ProductDTO
                 id: $v['id'] ?? null,
                 size_name: $v['size_name'] ?? null,
                 price: (float)($v['price'] ?? 0),
+                cost_price: isset($v['cost_price']) ? (float)$v['cost_price'] : (isset($v['cost']) ? (float)$v['cost'] : null),
                 barcode: $v['barcode'] ?? null
             );
         }

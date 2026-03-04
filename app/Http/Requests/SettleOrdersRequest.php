@@ -24,7 +24,7 @@ class SettleOrdersRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'driver_id' => 'required|integer|exists:users,id',
+            'driver_id' => 'required|integer|exists:delivery_persons,id',
             'order_ids' => 'required|array',
             'order_ids.*' => 'integer|exists:orders,id',
         ];

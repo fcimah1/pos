@@ -32,49 +32,68 @@ class OrderService
             ]);
         }
 
-        $subtotal = 0;
-        $itemsArray = [];
-        foreach ($dto->items as $i) {
-            $line = $i->unit_price * $i->quantity;
-            $subtotal += $line;
-            $itemsArray[] = [
-                'product_id' => $i->product_id ?? null,
-                'quantity' => $i->quantity,
-                'unit_price' => $i->unit_price,
-            ];
+        $totals = $this->calculateTotals($dto->items, $branch, $dto->discount_amount, $dto->delivery_charge);
+
+        $orderData = array_merge($dto->toArray(), [
+            'shift_id'     => $openShift->id,
+            'order_number' => 'ORD-' . time(),
+            'subtotal'       => $totals['subtotal'],
+            'tax_amount'     => $totals['tax_amount'],
+            'total_amount'   => $totals['total_amount'],
+            'status'         => $dto->status ?? 'suspended',
+            'payment_status' => $dto->payment_status ?? 'unpaid',
+        ]);
+
+        // تحويل الطلبات التي تُنشأ مدفوعة إلى مكتملة، خاصةً للتيك أواي
+        if (($dto->type === 'takeaway' && ($dto->payment_status === 'paid' || $dto->status === 'paid' || $dto->status === 'completed'))
+            || ($orderData['payment_status'] === 'paid' && $orderData['status'] !== 'suspended')) {
+            $orderData['status'] = 'completed';
+            $orderData['payment_status'] = 'paid';
         }
 
-        $taxAmount = ($subtotal - $dto->discount_amount) * ($branch->tax_rate / 100);
-        $totalAmount = $subtotal + $taxAmount - $dto->discount_amount + $dto->delivery_charge;
-
-        $orderData = [
-            'branch_id' => $dto->branch_id,
-            'user_id' => $dto->user_id,
-            'shift_id' => $openShift->id,
-            'customer_id' => $dto->customer_id,
-            'delivery_address_id' => $dto->delivery_address_id,
-            'delivery_person_id' => $dto->delivery_person_id,
-            'order_number' => 'ORD-' . time(),
-            'type' => $dto->type,
-            'table_number' => $dto->table_number,
-            'subtotal' => $subtotal,
-            'tax_amount' => $taxAmount,
-            'discount_amount' => $dto->discount_amount,
-            'delivery_charge' => $dto->delivery_charge,
-            'total_amount' => $totalAmount,
-            'notes' => $dto->notes,
-            'status' => $dto->status ?? 'suspended',
-            'payment_status' => $dto->payment_status ?? 'unpaid',
-        ];
-
-        $orderData['items'] = $itemsArray;
         $finalDto = CreateOrderDTO::fromArray($orderData);
-
         $order = $this->repo->create($finalDto);
 
         NewOrderEvent::dispatch($order);
 
         return $order;
+    }
+
+    public function update(int $id, CreateOrderDTO $dto)
+    {
+        $branch = Branch::findOrFail($dto->branch_id);
+        $totals = $this->calculateTotals($dto->items, $branch, $dto->discount_amount, $dto->delivery_charge);
+
+        $orderData = array_merge($dto->toArray(), [
+            'subtotal'     => $totals['subtotal'],
+            'tax_amount'   => $totals['tax_amount'],
+            'total_amount' => $totals['total_amount'],
+        ]);
+
+        $finalDto = CreateOrderDTO::fromArray($orderData);
+        return $this->repo->update($id, $finalDto);
+    }
+
+    private function calculateTotals(array $items, Branch $branch, float $discount = 0, float $delivery = 0): array
+    {
+        $subtotal = 0;
+        foreach ($items as $item) {
+            $subtotal += ($item->unit_price * $item->quantity);
+        }
+
+        $discount = (float)$discount;
+        $delivery = (float)$delivery;
+        $taxRate = (float)($branch->tax_rate ?? 14);
+
+        $taxableAmount = max(0, $subtotal - $discount);
+        $taxAmount = $taxableAmount * ($taxRate / 100);
+        $totalAmount = $taxableAmount + $taxAmount + $delivery;
+
+        return [
+            'subtotal' => $subtotal,
+            'tax_amount' => $taxAmount,
+            'total_amount' => $totalAmount,
+        ];
     }
 
     public function settleDriverOrders(int $driverId, array $orderIds): bool

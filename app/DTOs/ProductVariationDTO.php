@@ -8,6 +8,7 @@ readonly class ProductVariationDTO
         public ?int $id,
         public ?string $size_name,
         public float $price,
+        public ?float $cost_price,
         public ?string $barcode
     ) {}
 }

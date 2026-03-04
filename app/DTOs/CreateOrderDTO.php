@@ -62,4 +62,33 @@ readonly class CreateOrderDTO
             items: $items
         );
     }
+
+    public function toArray(): array
+    {
+        return [
+            'branch_id' => $this->branch_id,
+            'user_id' => $this->user_id,
+            'type' => $this->type,
+            'table_number' => $this->table_number,
+            'shift_id' => $this->shift_id,
+            'customer_id' => $this->customer_id,
+            'delivery_address_id' => $this->delivery_address_id,
+            'delivery_person_id' => $this->delivery_person_id,
+            'status' => $this->status,
+            'payment_status' => $this->payment_status,
+            'subtotal' => $this->subtotal,
+            'tax_amount' => $this->tax_amount,
+            'discount_amount' => $this->discount_amount,
+            'delivery_charge' => $this->delivery_charge,
+            'total_amount' => $this->total_amount,
+            'notes' => $this->notes,
+            'items' => array_map(fn($item) => [
+                'product_id' => $item->product_id,
+                'product_name' => $item->product_name,
+                'unit_price' => $item->unit_price,
+                'quantity' => $item->quantity,
+                'subtotal' => $item->subtotal,
+            ], $this->items)
+        ];
+    }
 }

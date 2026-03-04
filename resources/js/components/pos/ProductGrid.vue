@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-1 flex flex-col z-10 overflow-hidden font-tajawal">
+    <div class="flex-1 flex flex-col z-10 overflow-hidden min-h-0 font-tajawal">
         <!-- شريط أزرار نوع الطلب الفاخر -->
         <div class="bg-white px-5 pt-4 pb-3 shadow-md flex gap-3 items-center border-b border-gray-100">
             <button
@@ -21,9 +21,9 @@
         <!-- شريط البحث والخيارات الإضافية -->
         <slot name="top-bar"></slot>
 
-        <div class="flex flex-1 overflow-hidden">
+        <div class="flex flex-1 overflow-hidden min-h-0">
             <!-- قائمة التصنيفات الفاخرة -->
-            <div class="w-1/5 bg-gray-50/50 border-l border-gray-100 p-4 space-y-3 overflow-y-auto scrollbar-hide shadow-inner">
+            <div class="w-1/5 bg-gray-50/50 border-l border-gray-100 p-4 space-y-3 overflow-y-auto min-h-0 shadow-inner">
                 <button
                     v-for="(items, cat) in categories"
                     :key="cat"
@@ -44,7 +44,7 @@
             </div>
 
             <!-- شبكة المنتجات الفاخرة -->
-            <div class="flex-1 p-6 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-auto content-start bg-white select-none">
+            <div class="flex-1 p-6 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-auto min-h-0 content-start bg-white select-none">
                 <button
                     v-for="item in products"
                     :key="item.id"

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repository\Interface\CustomerRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 
 class CustomerService
 {
@@ -20,7 +21,17 @@ class CustomerService
 
     public function create(array $data)
     {
-        return $this->repo->create($data);
+        return DB::transaction(function () use ($data) {
+            $customer = $this->repo->create($data);
+
+            if (isset($data['addresses']) && is_array($data['addresses'])) {
+                foreach ($data['addresses'] as $address) {
+                    $customer->addresses()->create($address);
+                }
+            }
+
+            return $customer->load('addresses');
+        });
     }
 
     public function update(int $id, array $data)

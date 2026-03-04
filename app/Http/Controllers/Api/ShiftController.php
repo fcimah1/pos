@@ -5,12 +5,17 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\ShiftOpenRequest;
 use App\Http\Requests\ShiftCloseRequest;
 use App\Services\ShiftService;
+use App\Services\ExpenseService;
 use App\Events\ShiftClosedEvent;
 use Illuminate\Http\Request;
+use App\Models\Shift;
 
 class ShiftController
 {
-    public function __construct(private ShiftService $service) {}
+    public function __construct(
+        private ShiftService $service,
+        private ExpenseService $expenseService
+    ) {}
 
     public function openShift(ShiftOpenRequest $request)
     {
@@ -41,9 +46,10 @@ class ShiftController
             return response()->json(['message' => 'لا توجد وردية مفتوحة حالياً'], 404);
         }
 
-        // حساب المبيعات والبيانات المالية (Business Logic can be moved into service later if complex)
+        // حساب المبيعات والبيانات المالية
         $totalSales = $shift->orders()->where('status', 'paid')->sum('total_amount');
-        $expectedCash = $shift->opening_cash + $totalSales;
+        $expenses = $this->expenseService->totalByShift($branchId, $shift->id);
+        $expectedCash = $shift->opening_cash + $totalSales - $expenses;
         $closingCash = (float)$validated['closing_cash'];
 
         $shift = $this->service->closeShift($shift->id, $closingCash);
@@ -70,5 +76,16 @@ class ShiftController
         }
 
         return response()->json($shift);
+    }
+
+    public function byDate(Request $request)
+    {
+        $branchId = $request->user()?->branch_id ?? 1;
+        $date = $request->query('date', now()->toDateString());
+        $shifts = Shift::where('branch_id', $branchId)
+            ->whereDate('opened_at', $date)
+            ->orderBy('opened_at', 'asc')
+            ->get(['id','opened_at','closed_at','user_id','status','opening_cash','closing_cash']);
+        return response()->json($shifts);
     }
 }

@@ -16,6 +16,7 @@ class Order extends Model
         'delivery_person_id',
         'delivery_address_id',
         'order_number',
+        'shift_order_number',
         'type',
         'table_number',
         'subtotal',
@@ -35,6 +36,7 @@ class Order extends Model
         'discount_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'delivery_charge' => 'decimal:2',
+        'shift_order_number' => 'integer',
         'completed_at' => 'datetime',
     ];
 

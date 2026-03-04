@@ -49,7 +49,8 @@ trait ApiResponseTrait
             'trace' => $e->getTraceAsString()
         ]);
 
-        $code = $e->getCode();
+        $code = (int) $e->getCode();
+        // تطبيع كود الحالة: أي كود غير HTTP يتم تحويله إلى 500
         if ($code < 100 || $code >= 600) {
             $code = 500;
         }

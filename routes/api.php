@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\DeliveryPersonController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Api\EmployeeController;
+use App\Http\Controllers\Api\ExpenseController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -60,10 +61,20 @@ Route::middleware(['web'])->group(function () {
     Route::patch('/delivery-persons/{id}', [DeliveryPersonController::class, 'update']);
 
     Route::get('/reports/daily', [ReportController::class, 'daily']);
+    Route::get('/reports/daily/pdf', [ReportController::class, 'dailyPdf']);
+    Route::get('/reports/products', [ReportController::class, 'products']);
+    Route::get('/reports/products/pdf', [ReportController::class, 'productsPdf']);
 
     Route::post('/shifts/open', [ShiftController::class, 'openShift']);
     Route::post('/shifts/close', [ShiftController::class, 'closeShift']);
     Route::get('/shifts/current', [ShiftController::class, 'getCurrentShift']);
+    Route::get('/shifts/by-date', [ShiftController::class, 'byDate']);
+    Route::get('/reports/shift/pdf', [ReportController::class, 'shiftPdf']);
+
+    // المصروفات
+    Route::get('/expenses', [ExpenseController::class, 'index']);
+    Route::post('/expenses', [ExpenseController::class, 'store']);
+    Route::patch('/expenses/{id}', [ExpenseController::class, 'update']);
 
     // الموظفون والنظام الهرمي
     Route::get('/employees/visible', [EmployeeController::class, 'visible']);

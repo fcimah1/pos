@@ -40,7 +40,18 @@ class ProductRepository implements ProductRepositoryInterface
                 $product->variations()->create([
                     'size_name' => $varDTO->size_name,
                     'price' => $varDTO->price,
+                    'cost_price' => $varDTO->cost_price,
                     'barcode' => $varDTO->barcode,
+                ]);
+            }
+
+            // في حال لم تُرسل أحجام، ننشئ حجمًا افتراضيًا "عادي"
+            if (count($dto->variations) === 0) {
+                $product->variations()->create([
+                    'size_name'  => 'عادي',
+                    'price'      => $dto->price,
+                    'cost_price' => $dto->cost_price,
+                    'barcode'    => $product->barcode,
                 ]);
             }
 
@@ -71,6 +82,7 @@ class ProductRepository implements ProductRepositoryInterface
                         $variation->update([
                             'size_name' => $varDTO->size_name,
                             'price' => $varDTO->price,
+                            'cost_price' => $varDTO->cost_price,
                             'barcode' => $varDTO->barcode,
                         ]);
                         $keptVariationIds[] = $variation->id;
@@ -79,13 +91,36 @@ class ProductRepository implements ProductRepositoryInterface
                     $newVariation = $product->variations()->create([
                         'size_name' => $varDTO->size_name,
                         'price' => $varDTO->price,
+                        'cost_price' => $varDTO->cost_price,
                         'barcode' => $varDTO->barcode,
                     ]);
                     $keptVariationIds[] = $newVariation->id;
                 }
             }
 
-            $product->variations()->whereNotIn('id', $keptVariationIds)->delete();
+            if (count($keptVariationIds) > 0) {
+                $product->variations()->whereNotIn('id', $keptVariationIds)->delete();
+            } else {
+                // لا توجد أحجام مرسلة: حافظ/أنشئ الحجم الافتراضي "عادي"
+                $existing = $product->variations()->first();
+                if ($existing) {
+                    $existing->update([
+                        'size_name'  => 'عادي',
+                        'price'      => $dto->price,
+                        'cost_price' => $dto->cost_price,
+                        'barcode'    => $product->barcode,
+                    ]);
+                    $keptVariationIds[] = $existing->id;
+                    $product->variations()->whereNotIn('id', $keptVariationIds)->delete();
+                } else {
+                    $product->variations()->create([
+                        'size_name'  => 'عادي',
+                        'price'      => $dto->price,
+                        'cost_price' => $dto->cost_price,
+                        'barcode'    => $product->barcode,
+                    ]);
+                }
+            }
 
             return $product->load('variations');
         });

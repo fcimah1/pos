@@ -101,6 +101,8 @@ const formatDate = (dateStr) => {
 const getStatusLabel = (status) => {
     const labels = {
         'pending': '⏳ معلق',
+        'preparing': '🧑‍🍳 تحت التجهيز',
+        'delivering': '🛵 يتم توصيله',
         'paid': '✅ مدفوع',
         'completed': '🏁 مكتمل',
         'cancelled': '❌ ملغي',
@@ -113,6 +115,8 @@ const getStatusClass = (status) => {
     const classes = {
         'pending': 'bg-amber-100 text-amber-700',
         'suspended': 'bg-amber-100 text-amber-700',
+        'preparing': 'bg-indigo-100 text-indigo-700',
+        'delivering': 'bg-purple-100 text-purple-700',
         'paid': 'bg-emerald-100 text-emerald-700',
         'completed': 'bg-blue-100 text-blue-700',
         'cancelled': 'bg-red-100 text-red-700'

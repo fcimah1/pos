@@ -45,6 +45,7 @@
                         <th class="px-6 py-4">المنتج</th>
                         <th class="px-6 py-4">الصنف</th>
                         <th class="px-6 py-4">السعر</th>
+                        <th class="px-6 py-4">الأحجام</th>
                         <th class="px-6 py-4">التكلفة</th>
                         <th class="px-6 py-4">المخزون</th>
                         <th class="px-6 py-4 text-left">العمليات</th>
@@ -77,8 +78,13 @@
                         <td class="px-6 py-4 font-bold text-green-400 text-lg">
                             {{ getEffectivePrice(product) }} <span class="text-[10px] text-gray-500">ج.م</span>
                         </td>
-                        <td class="px-6 py-4 text-gray-500 italic">
-                            {{ product.cost_price }} <span class="text-[10px]">ج.م</span>
+                        <td class="px-6 py-4 text-center">
+                            <span class="px-2 py-0.5 rounded-full bg-gray-700/50 text-gray-300 text-xs font-bold">
+                                {{ product.variations?.length || 0 }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-400">
+                            {{ getEffectiveCost(product) }} <span class="text-[10px]">ج.م</span>
                         </td>
                         <td class="px-6 py-4">
                             <span
@@ -99,6 +105,13 @@
                                 تعديل
                             </button>
                             <button
+                                @click="openModal(product, true)"
+                                class="text-emerald-400 hover:text-emerald-300 transition-colors p-2 hover:bg-emerald-400/10 rounded-lg"
+                                title="إدارة الأحجام"
+                            >
+                                أحجام
+                            </button>
+                            <button
                                 @click="deleteProduct(product)"
                                 class="text-red-400 hover:text-red-300 transition-colors p-2 hover:bg-red-400/10 rounded-lg"
                             >
@@ -117,6 +130,7 @@
             :show="showModal"
             :product="editingProduct"
             :categories="categories"
+            :focus-variations="focusVariations"
             @close="showModal = false"
             @save="saveProduct"
         />
@@ -135,6 +149,7 @@ const search = ref("");
 const filterCategory = ref("");
 const showModal = ref(false);
 const editingProduct = ref(null);
+const focusVariations = ref(false);
 
 onMounted(() => {
     fetchProducts();
@@ -159,8 +174,9 @@ const fetchCategories = async () => {
     }
 };
 
-const openModal = (product = null) => {
+const openModal = (product = null, focus = false) => {
     editingProduct.value = product;
+    focusVariations.value = !!focus;
     showModal.value = true;
 };
 
@@ -234,6 +250,18 @@ const getEffectivePrice = (product) => {
         return min > 0 ? min.toFixed(2) : (parseFloat(product.price) || 0).toFixed(2);
     }
     return (parseFloat(product.price) || 0).toFixed(2);
+};
+
+const getEffectiveCost = (product) => {
+    if (product.variations && product.variations.length > 0) {
+        const costs = product.variations
+            .map(v => parseFloat(v.cost_price ?? v.cost ?? NaN))
+            .filter(v => !isNaN(v));
+        if (costs.length > 0) {
+            return Math.min(...costs).toFixed(2);
+        }
+    }
+    return (parseFloat(product.cost_price) || 0).toFixed(2);
 };
 
 const filteredProducts = computed(() => {

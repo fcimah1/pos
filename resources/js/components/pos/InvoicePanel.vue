@@ -18,16 +18,15 @@
         </div>
 
         <!-- قائمة الأصناف -->
-        <div class="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50/30">
+        <div class="flex-1 min-h-0 overflow-y-auto p-4 space-y-2 bg-gray-50/30">
             <div v-if="invoice.length === 0" class="h-full flex flex-col items-center justify-center opacity-20 grayscale py-20 text-center">
                 <span class="text-6xl mb-4">🛒</span>
-                <p class="font-black text-gray-500">لا توجد أصناف حالياً</p>
-                <p class="text-xs">ابدأ بإضافة المنتجات من القائمة</p>
+                <p class="font-black text-gray-900">لا توجد أصناف حالياً</p>
             </div>
             
             <div v-for="(item, index) in invoice" :key="index" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 hover:border-blue-300 transition-all group relative overflow-hidden">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="font-black text-gray-800 text-sm leading-tight flex-1">{{ item.name }}</span>
+                    <span class="font-black text-gray-900 text-sm leading-tight flex-1">{{ item.name }}</span>
                     <button @click="$emit('remove-item', index)" class="text-gray-300 hover:text-red-500 transition-colors p-1">✕</button>
                 </div>
                 
@@ -70,13 +69,17 @@
             </div>
 
             <div class="grid grid-cols-2 gap-3">
-                <button @click="$emit('suspend')" class="bg-amber-100 hover:bg-amber-500 hover:text-white text-amber-700 py-3 rounded-2xl font-black text-xs transition-all shadow-sm flex items-center justify-center gap-2 group">
+                <button @click="$emit('suspend')" :disabled="!canSuspend" class="bg-amber-100 hover:bg-amber-500 hover:text-white text-amber-700 py-3 rounded-2xl font-black text-xs transition-all shadow-sm flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-100 disabled:hover:text-amber-700">
                     <span class="text-lg group-hover:rotate-12 transition-transform">⏸</span><span>تعليق الطلب</span>
                 </button>
                 <button @click="$emit('clear')" class="bg-red-50 hover:bg-red-500 hover:text-white text-red-600 py-3 rounded-2xl font-black text-xs transition-all shadow-sm flex items-center justify-center gap-2 group">
                     <span class="text-lg group-hover:scale-125 transition-transform">🗑️</span><span>إلغاء الكل</span>
                 </button>
             </div>
+
+            <button v-if="isEditing" @click="$emit('pay')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-2xl font-black text-sm transition-all shadow-sm flex items-center justify-center gap-2 group">
+                <span class="text-lg">✅</span><span>إنهاء + دفع نقدي</span>
+            </button>
 
             <button @click="$emit('pay')" class="w-full bg-gray-900 border-2 border-gray-900 hover:bg-white hover:text-gray-900 text-white py-5 rounded-2xl font-black text-lg transition-all shadow-2xl shadow-gray-300 flex items-center justify-center gap-3 group relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
@@ -94,7 +97,11 @@ defineProps({
     subtotal: Number,
     tax: Number,
     taxRate: Number,
-    total: Number
+    total: Number,
+    canSuspend: {
+        type: Boolean,
+        default: true
+    }
 });
 
 defineEmits(['increase-qty', 'decrease-qty', 'remove-item', 'suspend', 'clear', 'pay']);

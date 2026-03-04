@@ -11,11 +11,13 @@ class ProductVariation extends Model
         'product_id',
         'size_name',
         'price',
+        'cost_price',
         'barcode',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
+        'cost_price' => 'decimal:2',
     ];
 
     public function product(): BelongsTo

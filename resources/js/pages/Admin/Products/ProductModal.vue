@@ -96,8 +96,12 @@
                             type="number"
                             step="0.01"
                             required
-                            class="w-full bg-gray-900 border-gray-700 rounded-xl text-white focus:ring-2 focus:ring-blue-500 transition-all px-4 py-3"
+                            :disabled="hasVariations"
+                            class="w-full bg-gray-900 border-gray-700 rounded-xl text-white focus:ring-2 focus:ring-blue-500 transition-all px-4 py-3 disabled:opacity-60"
                         />
+                        <p v-if="hasVariations" class="text-xs text-amber-400 mt-1">
+                            المنتج لديه أحجام؛ يتم حساب السعر من أحجام المنتج.
+                        </p>
                     </div>
                     <div class="space-y-1.5">
                         <label class="text-sm font-bold text-gray-400 mr-1"
@@ -108,8 +112,12 @@
                             type="number"
                             step="0.01"
                             required
-                            class="w-full bg-gray-900 border-gray-700 rounded-xl text-white focus:ring-2 focus:ring-blue-500 transition-all px-4 py-3"
+                            :disabled="hasVariations"
+                            class="w-full bg-gray-900 border-gray-700 rounded-xl text-white focus:ring-2 focus:ring-blue-500 transition-all px-4 py-3 disabled:opacity-60"
                         />
+                        <p v-if="hasVariations" class="text-xs text-amber-400 mt-1">
+                            التكلفة تختلف حسب الحجم؛ سيتم تخزينها لكل حجم على حدة.
+                        </p>
                     </div>
                 </div>
 
@@ -129,6 +137,37 @@
                         />
                     </div>
                     <p class="text-xs text-gray-500">اكتب أي Emoji كأيقونة للمنتج (مثال: 🍔 🍕 🥗 🥩)</p>
+                </div>
+
+                <!-- أزرار الحفظ -->
+                <div class="space-y-2 pt-2" ref="variationsTop">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-bold text-gray-400">أحجام المنتج</h4>
+                        <button type="button" @click="addVariation" class="text-blue-400 hover:text-blue-300 text-sm font-bold">+ إضافة حجم</button>
+                    </div>
+                    <div v-if="form.variations.length === 0" class="text-xs text-gray-500">لا توجد أحجام بعد.</div>
+                    <div v-for="(v, idx) in form.variations" :key="idx" class="grid grid-cols-4 gap-3 items-end bg-gray-900/40 p-3 rounded-xl border border-gray-700">
+                        <div>
+                            <label class="text-xs font-bold text-gray-400">الاسم/الحجم</label>
+                            <input v-model="v.size_name" type="text" class="w-full bg-gray-900 border-gray-700 rounded-xl text-white px-3 py-2" placeholder="صغير / وسط / كبير" />
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-400">السعر (ج.م)</label>
+                            <input v-model.number="v.price" type="number" step="0.01" class="w-full bg-gray-900 border-gray-700 rounded-xl text-white px-3 py-2" />
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-400">التكلفة (ج.م)</label>
+                            <input v-model.number="v.cost_price" type="number" step="0.01" class="w-full bg-gray-900 border-gray-700 rounded-xl text-white px-3 py-2" />
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="text-xs font-bold text-gray-400">الباركود</label>
+                                <input v-model="v.barcode" type="text" class="w-full bg-gray-900 border-gray-700 rounded-xl text-white px-3 py-2" />
+                            </div>
+                            <button type="button" @click="removeVariation(idx)" class="self-end px-3 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 font-bold">حذف</button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500">عند وجود أحجام، يتم اعتماد أقل سعر/تكلفة في القوائم العامة.</p>
                 </div>
 
                 <!-- أزرار الحفظ -->
@@ -153,12 +192,16 @@
 </template>
 
 <script setup>
-import { reactive, watch } from "vue";
+import { reactive, watch, computed, ref, nextTick } from "vue";
 
 const props = defineProps({
     show: Boolean,
     product: Object,
     categories: Array,
+    focusVariations: {
+        type: Boolean,
+        default: false
+    }
 });
 
 const emit = defineEmits(["close", "save"]);
@@ -171,7 +214,25 @@ const form = reactive({
     price: "",
     cost_price: "",
     icon: "",
+    variations: []
 });
+
+const hasVariations = computed(() => Array.isArray(props.product?.variations) && props.product.variations.length > 0);
+
+const variationsTop = ref(null);
+watch(() => props.show, async (v) => {
+    if (v && props.focusVariations) {
+        await nextTick();
+        variationsTop.value?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+});
+
+const addVariation = () => {
+    form.variations.push({ id: null, size_name: "", price: 0, cost_price: 0, barcode: "" });
+};
+const removeVariation = (idx) => {
+    form.variations.splice(idx, 1);
+};
 
 watch(
     () => props.product,
@@ -184,6 +245,13 @@ watch(
             form.price = newVal.price;
             form.cost_price = newVal.cost_price;
             form.icon = newVal.icon || "";
+            form.variations = (newVal.variations || []).map(v => ({
+                id: v.id ?? null,
+                size_name: v.size_name ?? "",
+                price: parseFloat(v.price ?? 0),
+                cost_price: v.cost_price != null ? parseFloat(v.cost_price) : null,
+                barcode: v.barcode ?? ""
+            }));
         } else {
             form.id = null;
             form.name = "";
@@ -192,6 +260,7 @@ watch(
             form.price = "";
             form.cost_price = "";
             form.icon = "";
+            form.variations = [];
         }
     },
     { immediate: true },

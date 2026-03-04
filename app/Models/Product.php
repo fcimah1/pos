@@ -15,6 +15,7 @@ class Product extends Model
         'sku',
         'barcode',
         'description',
+        'price',
         'cost_price',
         'stock_quantity',
         'low_stock_level',
@@ -24,6 +25,7 @@ class Product extends Model
     ];
 
     protected $casts = [
+        'price' => 'decimal:2',
         'cost_price' => 'decimal:2',
         'is_active' => 'boolean',
     ];

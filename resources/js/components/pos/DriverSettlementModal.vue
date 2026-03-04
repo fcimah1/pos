@@ -66,10 +66,20 @@
                 </div>
                 
                 <div v-else class="space-y-4">
+                    <!-- شريط تحديد الكل -->
+                    <div class="flex items-center justify-between bg-gray-800/40 rounded-2xl p-3 border border-gray-800">
+                        <label class="flex items-center gap-2 text-gray-300 text-sm font-bold">
+                            <input type="checkbox" class="accent-indigo-600 w-4 h-4" :checked="isAllSelected" @change="toggleAll" />
+                            تحديد الكل
+                        </label>
+                        <div class="text-xs text-gray-400 font-black">المحدد: {{ selectedIds.length }} من {{ orders.length }}</div>
+                    </div>
+
                     <div v-for="ord in orders" :key="ord.id" class="bg-gray-800/40 rounded-3xl p-5 border border-gray-800 hover:border-indigo-500/30 transition-all hover:bg-gray-800/60 group shadow-sm">
                         <div class="flex justify-between items-center">
                             <div class="space-y-2">
                                 <div class="flex items-center gap-3">
+                                    <input type="checkbox" class="accent-indigo-600 w-4 h-4" :value="ord.id" v-model="selectedIds" />
                                     <span class="bg-indigo-600/10 text-indigo-400 text-xs font-black px-3 py-1 rounded-full border border-indigo-600/20">طلب #{{ ord.id }}</span>
                                     <span class="text-xs text-gray-500 font-bold">{{ ord.created_at }}</span>
                                 </div>
@@ -92,11 +102,12 @@
                 <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                     <div class="flex flex-col text-right">
                         <span class="text-xs text-gray-500 font-black uppercase tracking-widest mb-1">إجمالي العجز المطلوب توريده</span>
-                        <div class="text-4xl font-black text-indigo-400">{{ orders.reduce((s,o) => s + parseFloat(o.total_amount), 0).toLocaleString() }} <span class="text-sm font-normal">ج.م</span></div>
+                        <div class="text-4xl font-black text-indigo-400">{{ selectedTotal.toLocaleString() }} <span class="text-sm font-normal">ج.م</span></div>
                     </div>
                     <button 
-                        @click="$emit('settle', selectedDriverId, orders.map(o => o.id))"
-                        class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-10 py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-emerald-900/30 transition-all active:scale-95 flex items-center justify-center gap-3 group"
+                        @click="$emit('settle', selectedDriverId, selectedIds)"
+                        :disabled="selectedIds.length === 0"
+                        class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-900/50 disabled:cursor-not-allowed text-white px-10 py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-emerald-900/30 transition-all active:scale-95 flex items-center justify-center gap-3 group"
                     >
                         <span>تسوية الحساب الآن</span>
                         <svg class="w-7 h-7 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,6 +121,7 @@
 </template>
 
 <script setup>
+import { ref, computed, watch } from 'vue';
 defineProps({
     show: Boolean,
     drivers: Array,
@@ -119,6 +131,29 @@ defineProps({
 });
 
 defineEmits(['close', 'update:selectedDriverId', 'settle']);
+
+const selectedIds = ref([]);
+const isAllSelected = computed(() => selectedIds.value.length > 0 && selectedIds.value.length === (Array.isArray(__props.orders) ? __props.orders.length : 0));
+const selectedTotal = computed(() => {
+    const map = new Set(selectedIds.value);
+    return (Array.isArray(__props.orders) ? __props.orders : []).filter(o => map.has(o.id)).reduce((s, o) => s + parseFloat(o.total_amount || 0), 0);
+});
+
+const toggleAll = (e) => {
+    if (e.target.checked) {
+        selectedIds.value = (Array.isArray(__props.orders) ? __props.orders : []).map(o => o.id);
+    } else {
+        selectedIds.value = [];
+    }
+};
+
+watch(() => __props.selectedDriverId, () => {
+    selectedIds.value = [];
+});
+
+watch(() => __props.orders, () => {
+    selectedIds.value = [];
+});
 </script>
 
 <style scoped>
