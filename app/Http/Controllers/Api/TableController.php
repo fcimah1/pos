@@ -18,6 +18,7 @@ class TableController
     public function updateStatus(Request $request, $id)
     {
         $isAvailable = $request->boolean('is_available');
-        return response()->json($this->service->updateStatus((int)$id, $isAvailable));
+        $isActive = $request->boolean('is_active');
+        return response()->json($this->service->updateStatus((int)$id, $isAvailable, $isActive));
     }
 }

@@ -20,8 +20,8 @@ class TableService
         return $this->repository->getAll($branchId)->where('is_available', true);
     }
 
-    public function updateStatus(int $tableId, bool $isAvailable)
+    public function updateStatus(int $tableId, bool $isAvailable, bool $isActive)
     {
-        return $this->repository->update($tableId, ['is_available' => $isAvailable]);
+        return $this->repository->update($tableId, ['is_available' => $isAvailable, 'is_active' => $isActive]);
     }
 }

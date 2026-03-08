@@ -995,7 +995,39 @@ const printOrderReceipt = (order) => {
 
 // اختيار الطاولة الشبكي
 const showTablePicker = ref(false);
-const availableTables = computed(() => (tables.value || []).filter(t => t.is_active && !t.occupied));
+
+const unavailableTableNumbers = computed(() => {
+    const unavails = suspendedOrders.value
+        .filter(o => o.type === 'dinein' && o.table_number)
+        .map(o => String(o.table_number));
+    console.log("Unavailable Table Numbers:", unavails);
+    return unavails;
+});
+
+const availableTables = computed(() => {
+    return (tables.value || []).filter(t => {
+        if (!t.is_active || t.occupied) return false;
+
+        const tableNumStr = String(t.number);
+
+        // إذا كنا نعدّل طلباً معلقاً، نسمح بظهور طاولته الخاصة في القائمة
+        if (editingIndex.value !== null && suspendedOrders.value[editingIndex.value]) {
+            const currentEditingTable = String(suspendedOrders.value[editingIndex.value].table_number);
+            if (currentEditingTable === tableNumStr) {
+                return true;
+            }
+        }
+
+        const isUnavailable = unavailableTableNumbers.value.includes(tableNumStr);
+        if (tableNumStr === '1') {
+            console.log(`Table 1 Check: isUnavailable=${isUnavailable}, includes(${tableNumStr}) in `, unavailableTableNumbers.value);
+        }
+
+        // إخفاء الطاولة إذا كانت مستخدمة في أي طلب معلق آخر
+        return !isUnavailable;
+    });
+});
+
 const tableBtnRef = ref(null);
 const tablePickerPos = ref({ top: 0, left: 0 });
 

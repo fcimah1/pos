@@ -2,16 +2,30 @@
 
 namespace App\Providers;
 
-use App\Repository\Interface\OrderRepositoryInterface;
-use App\Repository\Interface\UserRepositoryInterface;
-use App\Repository\Interface\CategoryRepositoryInterface;
-use App\Repository\Interface\ProductRepositoryInterface;
-use Illuminate\Support\ServiceProvider;
-use App\Repository\OrderRepository;
-use App\Repository\UserRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\CustomerRepository;
+use App\Repository\DepartmentRepository;
+use App\Repository\DesignationRepository;
+use App\Repository\ExpenseRepository;
+use App\Repository\Interface\CategoryRepositoryInterface;
+use App\Repository\Interface\CustomerRepositoryInterface;
+use App\Repository\Interface\DepartmentRepositoryInterface;
+use App\Repository\Interface\DesignationRepositoryInterface;
+use App\Repository\Interface\ExpenseRepositoryInterface;
+use App\Repository\Interface\OrderRepositoryInterface;
+use App\Repository\Interface\PaymentRepositoryInterface;
+use App\Repository\Interface\ProductRepositoryInterface;
+use App\Repository\Interface\ShiftRepositoryInterface;
+use App\Repository\Interface\TableRepositoryInterface;
+use App\Repository\Interface\UserRepositoryInterface;
+use App\Repository\OrderRepository;
+use App\Repository\PaymentRepository;
 use App\Repository\ProductRepository;
+use App\Repository\ShiftRepository;
+use App\Repository\TableRepository;
+use App\Repository\UserRepository;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,59 +34,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(
-            \App\Repository\Interface\OrderRepositoryInterface::class,
-            \App\Repository\OrderRepository::class
-        );
-
-        $this->app->singleton(
-            \App\Repository\Interface\UserRepositoryInterface::class,
-            \App\Repository\UserRepository::class
-        );
-
-        $this->app->singleton(
-            \App\Repository\Interface\CategoryRepositoryInterface::class,
-            \App\Repository\CategoryRepository::class
-        );
-
-        $this->app->singleton(
-            \App\Repository\Interface\ProductRepositoryInterface::class,
-            \App\Repository\ProductRepository::class
-        );
-
-        $this->app->singleton(
-            \App\Repository\Interface\CustomerRepositoryInterface::class,
-            \App\Repository\CustomerRepository::class
-        );
-        $this->app->singleton(
-            \App\Repository\Interface\UserRepositoryInterface::class,
-            \App\Repository\UserRepository::class
-        );
-        $this->app->singleton(
-            \App\Repository\Interface\ShiftRepositoryInterface::class,
-            \App\Repository\ShiftRepository::class
-        );
-        $this->app->singleton(
-            \App\Repository\Interface\PaymentRepositoryInterface::class,
-            \App\Repository\PaymentRepository::class
-        );
-        $this->app->singleton(
-            \App\Repository\Interface\ExpenseRepositoryInterface::class,
-            \App\Repository\ExpenseRepository::class
-        );
-        $this->app->singleton(
-            \App\Repository\Interface\TableRepositoryInterface::class,
-            \App\Repository\TableRepository::class
-        );
-        $this->app->singleton(
-            \App\Repository\Interface\DesignationRepositoryInterface::class,
-            \App\Repository\DesignationRepository::class
-        );
-        $this->app->singleton(
-            \App\Repository\Interface\DepartmentRepositoryInterface::class,
-            \App\Repository\DepartmentRepository::class
-        );
-
+        $this->app->singleton(OrderRepositoryInterface::class, OrderRepository::class);
+        $this->app->singleton(UserRepositoryInterface::class, UserRepository::class);
+        $this->app->singleton(CategoryRepositoryInterface::class, CategoryRepository::class);
+        $this->app->singleton(ProductRepositoryInterface::class, ProductRepository::class);
+        $this->app->singleton(CustomerRepositoryInterface::class, CustomerRepository::class);
+        $this->app->singleton(ShiftRepositoryInterface::class, ShiftRepository::class);
+        $this->app->singleton(PaymentRepositoryInterface::class, PaymentRepository::class);
+        $this->app->singleton(ExpenseRepositoryInterface::class, ExpenseRepository::class);
+        $this->app->singleton(TableRepositoryInterface::class, TableRepository::class);
+        $this->app->singleton(DesignationRepositoryInterface::class, DesignationRepository::class);
+        $this->app->singleton(DepartmentRepositoryInterface::class, DepartmentRepository::class);
     }
 
     /**
@@ -80,7 +52,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // 
         Schema::defaultStringLength(191);
     }
 }
