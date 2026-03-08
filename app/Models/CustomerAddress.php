@@ -13,12 +13,15 @@ class CustomerAddress extends Model
         'type',
         'address_line_1',
         'address_line_2',
+        'floor_number',
+        'apartment_number',
         'city',
         'state',
         'postal_code',
         'country',
         'latitude',
         'longitude',
+        'delivery_charge',
         'notes',
         'is_default',
         'is_active',
@@ -27,11 +30,12 @@ class CustomerAddress extends Model
     protected $casts = [
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'delivery_charge' => 'decimal:2',
         'is_default' => 'boolean',
         'is_active' => 'boolean',
     ];
 
-    public function customer(): BelongsTo
+    public function customer(): BelongsTo   
     {
         return $this->belongsTo(Customer::class);
     }

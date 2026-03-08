@@ -418,7 +418,7 @@
                         ✕
                     </button>
                 </div>
-                <div class="p-6 space-y-4">
+                <div class="p-6 space-y-4 overflow-y-auto max-h-[70vh]">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-gray-700 font-bold mb-1"
@@ -436,7 +436,7 @@
                             >
                             <input
                                 v-model="newCustomer.phone"
-                                type="text"
+                                type="text" 
                                 class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-gray-900"
                             />
                         </div>
@@ -448,45 +448,91 @@
                         <input
                             v-model="newCustomer.phone2"
                             type="text"
+                            inputmode="numeric"
                             class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-gray-900"
                         />
                     </div>
-                    <div class="space-y-2">
+                    <div class="space-y-4">
                         <label class="block text-gray-700 font-bold"
                             >العناوين</label
                         >
-                        <input
-                            v-model="newCustomer.address1"
-                            type="text"
-                            placeholder="العنوان الرئيسي (منطقة - شارع - عمارة - شقة) *"
-                            class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 placeholder-gray-400"
-                        />
-                        <label class="flex items-center gap-2 text-xs font-bold text-gray-700">
-                            <input type="radio" name="defaultAddress" value="1" v-model="newCustomer.defaultIndex" />
-                            اجعل هذا افتراضياً
-                        </label>
-                        <input
-                            v-model="newCustomer.address2"
-                            type="text"
-                            placeholder="عنوان فرعي 1"
-                            class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 placeholder-gray-400"
-                        />
-                        <label class="flex items-center gap-2 text-xs font-bold text-gray-700">
-                            <input type="radio" name="defaultAddress" value="2" v-model="newCustomer.defaultIndex" />
-                            اجعل هذا افتراضياً
-                        </label>
-                        <input
-                            v-model="newCustomer.address3"
-                            type="text"
-                            placeholder="عنوان فرعي 2"
-                            class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 placeholder-gray-400"
-                        />
-                        <label class="flex items-center gap-2 text-xs font-bold text-gray-700">
-                            <input type="radio" name="defaultAddress" value="3" v-model="newCustomer.defaultIndex" />
-                            اجعل هذا افتراضياً
-                        </label>
-                    </div>
-                    <div>
+                        <div class="space-y-4 pt-2 border-t border-gray-100">
+                            <div v-for="(addr, index) in newCustomer.addresses" :key="index" class="border border-gray-200 rounded-xl p-3 bg-gray-50 space-y-3 relative group">
+                                <div class="flex justify-between items-center bg-gray-100 -m-3 mb-2 px-3 py-1 rounded-t-xl border-b border-gray-200">
+                                    <span class="text-xs font-bold text-gray-500">عنوان #{{ index + 1 }}</span>
+                                    <button
+                                        v-if="newCustomer.addresses.length > 1"
+                                        @click="removeAddressField(index)"
+                                        class="w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center hover:bg-red-200 text-xs transition-colors"
+                                        title="إزالة العنوان"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                                <textarea
+                                    v-model="addr.address_line_1"
+                                    rows="3"
+                                    :placeholder="index === 0 ? 'العنوان الرئيسي' : 'عنوان إضافي'"
+                                    class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 placeholder-gray-400 resize-none"
+                                ></textarea>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-600 mb-1">الدور</label>
+                                        <input v-model="addr.floor_number" type="text" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-blue-500 outline-none text-gray-900 placeholder-gray-400" placeholder="اختياري" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-600 mb-1">الشقة</label>
+                                        <input v-model="addr.apartment_number" type="text" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-blue-500 outline-none text-gray-900 placeholder-gray-400" placeholder="اختياري" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-600 mb-1">رسوم التوصيل</label>
+                                        <input v-model.number="addr.delivery_charge" type="number" min="0" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-blue-500 outline-none text-gray-900 placeholder-gray-400" />
+                                    </div>
+                                    <div class="col-span-3">
+                                        <label class="block text-xs font-bold text-gray-600 mb-2">نوع العنوان</label>
+                                        <div class="flex gap-2 bg-gray-100/50 p-1 rounded-xl border border-gray-200">
+                                            <button 
+                                                type="button"
+                                                @click="addr.type = 'home'"
+                                                :class="addr.type === 'home' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-200'"
+                                                class="flex-1 py-2 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <span>🏠</span> منزل
+                                            </button>
+                                            <button 
+                                                type="button"
+                                                @click="addr.type = 'work'"
+                                                :class="addr.type === 'work' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-200'"
+                                                class="flex-1 py-2 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <span>🏢</span> عمل
+                                            </button>
+                                            <button 
+                                                type="button"
+                                                @click="addr.type = 'other'"
+                                                :class="addr.type === 'other' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-200'"
+                                                class="flex-1 py-2 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <span>📍</span> أخرى
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <label class="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer">
+                                    <input type="radio" name="defaultAddress" :value="index" v-model="newCustomer.defaultIndex" />
+                                    اجعل هذا افتراضياً
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Button to add more addresses -->
+                        <div class="flex justify-center mt-2">
+                            <button @click="addAddressField" type="button" class="text-sm font-bold text-amber-600 hover:text-amber-800 flex items-center gap-1 transition-colors bg-amber-50 px-4 py-2 rounded-xl border border-amber-200">
+                                <span>➕ إضافة عنوان آخر</span>
+                            </button>
+                        </div>
+
+                        <div>
                         <label class="block text-gray-700 font-bold mb-1"
                             >علامة مميزة</label
                         >
@@ -496,6 +542,8 @@
                             class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 placeholder-gray-400"
                         ></textarea>
                     </div>
+                    </div>
+                    
                 </div>
                 <div class="bg-gray-50 p-4 flex gap-3">
                     <button
@@ -543,25 +591,83 @@
                         :key="idx"
                         class="w-full p-3 border-2 border-gray-100 rounded-xl text-right hover:border-amber-500 hover:bg-amber-50 transition font-bold text-sm text-gray-800 break-words flex items-center gap-3"
                     >
-                        <div class="flex-1 text-right">
-                            <template v-if="editingAddress && editingAddress.id === addr.id">
-                                <input v-model="editingAddress.line1" class="w-full border-2 border-gray-100 rounded-xl p-2 text-sm outline-none focus:border-amber-500 mb-2" />
-                                <input v-model="editingAddress.line2" class="w-full border-2 border-gray-100 rounded-xl p-2 text-sm outline-none focus:border-amber-500" placeholder="سطر ثاني (اختياري)" />
-                            </template>
-                            <template v-else>
+                        <!-- When NOT Editing -->
+                        <div v-if="!(editingAddress && editingAddress.id === addr.id)" class="flex-1 text-right flex items-center justify-between gap-3">
+                            <div class="flex-1">
                                 🏠 {{ addr.line1 }}<span v-if="addr.line2"> - {{ addr.line2 }}</span>
-                            </template>
+                                <span v-if="addr.floorNumber || addr.apartmentNumber" class="text-xs text-gray-500 mr-2">
+                                    ( الدور: {{ addr.floorNumber || '-' }} ، الشقة: {{ addr.apartmentNumber || '-' }} )
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-gray-500 font-bold">رسوم التوصيل</span>
+                                <input
+                                    v-model.number="addr.deliveryCharge"
+                                    type="number"
+                                    min="10"
+                                    step="1"
+                                    class="w-20 border-2 border-gray-100 rounded-xl p-1 text-xs outline-none focus:border-amber-500 text-right"
+                                />
+                                <span class="text-[10px] text-gray-500">ج.م</span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] text-gray-500 font-bold">رسوم التوصيل</span>
-                            <input
-                                v-model.number="addr.deliveryCharge"
-                                type="number"
-                                min="10"
-                                step="1"
-                                class="w-20 border-2 border-gray-100 rounded-xl p-1 text-xs outline-none focus:border-amber-500 text-right"
-                            />
-                            <span class="text-[10px] text-gray-500">ج.م</span>
+
+                        <!-- When Editing -->
+                        <div v-else class="w-full flex flex-col gap-3">
+                            <textarea v-model="editingAddress.line1" rows="3" class="w-full border-2 border-gray-100 rounded-xl p-2 text-sm outline-none focus:border-amber-500 resize-none" placeholder="العنوان الرئيسي"></textarea>
+                            <div class="grid grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-[10px] text-gray-500 font-bold mb-1">الدور</label>
+                                    <input v-model="editingAddress.floorNumber" class="w-full border-2 border-gray-100 rounded-xl p-2 text-sm outline-none focus:border-amber-500" placeholder="اختياري" />
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-gray-500 font-bold mb-1">الشقة</label>
+                                    <input v-model="editingAddress.apartmentNumber" class="w-full border-2 border-gray-100 rounded-xl p-2 text-sm outline-none focus:border-amber-500" placeholder="اختياري" />
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-gray-500 font-bold mb-1">رسوم التوصيل</label>
+                                    <div class="flex items-center gap-1">
+                                        <input
+                                            v-model.number="editingAddress.deliveryCharge"
+                                            type="number"
+                                            min="0"
+                                            step="1"
+                                            class="w-full border-2 border-amber-500 rounded-xl p-2 text-sm outline-none focus:border-amber-600 text-right bg-amber-50"
+                                        />
+                                        <span class="text-[10px] text-gray-500">ج.م</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Type selection during edit -->
+                            <div>
+                                <label class="block text-[10px] text-gray-500 font-bold mb-2">نوع العنوان</label>
+                                <div class="flex gap-2 bg-amber-50 p-1 rounded-xl border border-amber-100">
+                                    <button 
+                                        type="button"
+                                        @click="editingAddress.type = 'home'"
+                                        :class="editingAddress.type === 'home' ? 'bg-amber-500 text-white shadow-md' : 'text-amber-600/70 hover:bg-amber-100'"
+                                        class="flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all flex items-center justify-center gap-2"
+                                    >
+                                        🏠 منزل
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        @click="editingAddress.type = 'work'"
+                                        :class="editingAddress.type === 'work' ? 'bg-amber-500 text-white shadow-md' : 'text-amber-600/70 hover:bg-amber-100'"
+                                        class="flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all flex items-center justify-center gap-2"
+                                    >
+                                        🏢 عمل
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        @click="editingAddress.type = 'other'"
+                                        :class="editingAddress.type === 'other' ? 'bg-amber-500 text-white shadow-md' : 'text-amber-600/70 hover:bg-amber-100'"
+                                        class="flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all flex items-center justify-center gap-2"
+                                    >
+                                        📍 أخرى
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <span
                             v-if="addr.is_default"
@@ -587,6 +693,10 @@
                             @click="editingAddress = null"
                             class="px-3 py-1 rounded-lg bg-red-100 text-red-700 text-[10px] font-black hover:bg-red-200"
                         >إلغاء</button>
+                        <button
+                            @click="deleteAddress(addr.id)"
+                            class="px-3 py-1 rounded-lg bg-red-100 text-red-600 text-[10px] font-black hover:bg-red-200"
+                        >حذف</button>
                         <button
                             @click="confirmAddressSelection(addr)"
                             class="px-3 py-1 rounded-lg bg-amber-600 text-white text-[10px] font-black hover:bg-amber-700"
@@ -885,7 +995,7 @@ const printOrderReceipt = (order) => {
 
 // اختيار الطاولة الشبكي
 const showTablePicker = ref(false);
-const availableTables = computed(() => (tables.value || []).filter(t => t.is_available));
+const availableTables = computed(() => (tables.value || []).filter(t => t.is_active && !t.occupied));
 const tableBtnRef = ref(null);
 const tablePickerPos = ref({ top: 0, left: 0 });
 
@@ -942,9 +1052,12 @@ const apiCall = async (endpoint, options = {}) => {
         const errorData = await response
             .json()
             .catch(() => ({ message: "Unknown error" }));
-        throw new Error(
+        const error = new Error(
             errorData.message || `HTTP error! status: ${response.status}`,
         );
+        error.errorData = errorData;
+        error.status = response.status;
+        throw error;
     }
 
     return response.json();
@@ -979,6 +1092,7 @@ const loadSuspendedOrders = async () => {
                       phone: order.customer.phone,
                       specialMark: order.customer.special_mark,
                       addressId: order.delivery_address_id,
+                      deliveryCharge: parseFloat(order.delivery_charge || 0),
                   }
                 : null,
             driverName: order.delivery_person?.name || order.deliveryPerson?.name || null,
@@ -1090,9 +1204,11 @@ const selectCustomer = (customer) => {
             id: a.id,
             line1: a.address_line_1,
             line2: a.address_line_2 || '',
+            floorNumber: a.floor_number || '',
+            apartmentNumber: a.apartment_number || '',
             is_default: !!a.is_default,
             type: a.type || 'home',
-            deliveryCharge: 0,
+            deliveryCharge: parseFloat(a.delivery_charge || 0),
         }));
 
     currentEditingCustomer.value = customer;
@@ -1154,6 +1270,7 @@ const addNewAddress = async () => {
                 address_line_1: newAddressText.value.trim(),
                 type: newAddressType.value,
                 is_default: newAddressIsDefault.value,
+                // Optional UI for adding addresses on the fly doesn't have floor/apartment right now, but we will support them if present.
             },
         });
         const addr = saved.data || saved;
@@ -1161,8 +1278,11 @@ const addNewAddress = async () => {
             id: addr.id,
             line1: addr.address_line_1,
             line2: addr.address_line_2 || '',
+            floorNumber: addr.floor_number || '',
+            apartmentNumber: addr.apartment_number || '',
             is_default: !!addr.is_default,
             type: addr.type || 'home',
+            deliveryCharge: parseFloat(addr.delivery_charge || 0),
         });
         if (newAddressIsDefault.value) {
             selectedCustomerAddresses.value = selectedCustomerAddresses.value.map(a => ({ ...a, is_default: a.id === addr.id }));
@@ -1183,6 +1303,9 @@ const saveEditAddress = async () => {
         const body = {
             address_line_1: editingAddress.value.line1,
             address_line_2: editingAddress.value.line2,
+            floor_number: editingAddress.value.floorNumber,
+            apartment_number: editingAddress.value.apartmentNumber,
+            delivery_charge: editingAddress.value.deliveryCharge,
             type: editingAddress.value.type,
         };
         const saved = await apiCall(`/customer-addresses/${editingAddress.value.id}`, {
@@ -1196,8 +1319,11 @@ const saveEditAddress = async () => {
                       id: addr.id,
                       line1: addr.address_line_1,
                       line2: addr.address_line_2 || '',
+                      floorNumber: addr.floor_number || '',
+                      apartmentNumber: addr.apartment_number || '',
                       is_default: !!addr.is_default,
                       type: addr.type || 'home',
+                      deliveryCharge: parseFloat(addr.delivery_charge || 0)
                   }
                 : a
         );
@@ -1209,29 +1335,91 @@ const newCustomer = ref({
     name: "",
     phone: "",
     phone2: "",
-    address1: "",
-    address2: "",
-    address3: "",
+    addresses: [
+        {
+            address_line_1: "",
+            floor_number: "",
+            apartment_number: "",
+            delivery_charge: 10,
+            type: "home",
+        }
+    ],
     specialMark: "",
-    defaultIndex: "1",
+    defaultIndex: 0,
 });
+
+const addAddressField = () => {
+    newCustomer.value.addresses.push({
+        address_line_1: "",
+        floor_number: "",
+        apartment_number: "",
+        delivery_charge: 10,
+        type: "home",
+    });
+};
+
+const removeAddressField = (index) => {
+    newCustomer.value.addresses.splice(index, 1);
+    if (newCustomer.value.defaultIndex >= newCustomer.value.addresses.length) {
+        newCustomer.value.defaultIndex = 0;
+    }
+};
+
 const resetNewCustomer = () => {
     newCustomer.value = {
         name: "",
         phone: "",
         phone2: "",
-        address1: "",
-        address2: "",
-        address3: "",
+        addresses: [
+            {
+                address_line_1: "",
+                floor_number: "",
+                apartment_number: "",
+                delivery_charge: 10,
+                type: "home",
+            }
+        ],
         specialMark: "",
-        defaultIndex: "1",
+        defaultIndex: 0,
     };
 };
+const deleteAddress = async (addressId) => {
+    const result = await Swal.fire({
+        title: "هل أنت متأكد؟",
+        text: "سيتم حذف هذا العنوان نهائياً!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "نعم، احذف",
+        cancelButtonText: "إلغاء",
+    });
+
+    if (result.isConfirmed) {
+        try {
+            await apiCall(`/customer-addresses/${addressId}`, { method: "DELETE" });
+            selectedCustomerAddresses.value = selectedCustomerAddresses.value.filter(
+                (a) => a.id !== addressId
+            );
+            Swal.fire({
+                icon: "success",
+                title: "تم الحذف",
+                text: "تم حذف العنوان بنجاح",
+                timer: 1500,
+                showConfirmButton: false,
+            });
+        } catch (err) {
+            Swal.fire({ icon: "error", title: "خطأ", text: "فشل حذف العنوان" });
+        }
+    }
+};
+
 const saveNewCustomer = async () => {
     if (
         !newCustomer.value.name ||
         !newCustomer.value.phone ||
-        !newCustomer.value.address1
+        newCustomer.value.addresses.length === 0 ||
+        !newCustomer.value.addresses[0].address_line_1
     ) {
         Swal.fire({
             icon: "warning",
@@ -1244,28 +1432,12 @@ const saveNewCustomer = async () => {
     }
     isLoading.value = true;
     try {
-        const addresses = [];
-        if (newCustomer.value.address1) {
-            addresses.push({
-                address_line_1: newCustomer.value.address1,
-                type: "home",
-                is_default: newCustomer.value.defaultIndex === "1",
-            });
-        }
-        if (newCustomer.value.address2) {
-            addresses.push({
-                address_line_1: newCustomer.value.address2,
-                type: "work",
-                is_default: newCustomer.value.defaultIndex === "2",
-            });
-        }
-        if (newCustomer.value.address3) {
-            addresses.push({
-                address_line_1: newCustomer.value.address3,
-                type: "other",
-                is_default: newCustomer.value.defaultIndex === "3",
-            });
-        }
+        const addresses = newCustomer.value.addresses
+            .filter(a => a.address_line_1.trim() !== '')
+            .map((a, idx) => ({
+                ...a,
+                is_default: newCustomer.value.defaultIndex === idx
+            }));
 
         const response = await apiCall("/customers", {
             method: "POST",
@@ -1288,22 +1460,24 @@ const saveNewCustomer = async () => {
             specialMark: saved.special_mark,
             selectedAddress: saved.addresses?.[0]?.address_line_1 || null,
             addressId: saved.addresses?.[0]?.id || null,
+            deliveryCharge: parseFloat(saved.addresses?.[0]?.delivery_charge || 0),
         };
         showCustomerModal.value = false;
-        newCustomer.value = {
-            name: "",
-            phone: "",
-            phone2: "",
-            address1: "",
-            address2: "",
-            address3: "",
-            specialMark: "",
-        };
+        resetNewCustomer();
     } catch (err) {
+        let errorMsg = err.message;
+        if (err.status === 422 && err.errorData?.errors) {
+            const errors = err.errorData.errors;
+            errorMsg = '<ul class="text-right list-disc pr-4 text-xs mt-2">';
+            Object.values(errors).flat().forEach(msg => {
+                errorMsg += `<li>${msg}</li>`;
+            });
+            errorMsg += '</ul>';
+        }
         Swal.fire({
             icon: "error",
             title: "فشل الحفظ",
-            text: err.message,
+            html: errorMsg,
             confirmButtonText: "حسناً",
         });
     } finally {

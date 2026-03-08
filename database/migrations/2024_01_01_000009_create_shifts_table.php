@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('total_sales', 10, 2)->default(0);
             $table->decimal('expected_cash', 10, 2)->nullable();
             $table->decimal('variance', 10, 2)->nullable();
-            $table->enum('status', ['open', 'closed'])->default('open');
+            $table->string('status')->default('open');
             $table->timestamp('opened_at');
             $table->timestamp('closed_at')->nullable();
             $table->timestamps();

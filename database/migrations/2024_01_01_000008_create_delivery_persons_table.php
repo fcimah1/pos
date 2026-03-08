@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('vehicle_number')->nullable();
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
-            $table->enum('status', ['available', 'on_delivery', 'offline'])->default('offline');
+            $table->string('status')->default('offline');
             $table->decimal('rating', 3, 2)->default(0);
             $table->integer('total_deliveries')->default(0);
             $table->boolean('is_active')->default(true);

@@ -20,15 +20,15 @@ return new class extends Migration
             $table->foreignId('delivery_person_id')->nullable()->constrained('delivery_persons')->onDelete('set null');
             $table->foreignId('delivery_address_id')->nullable()->constrained('customer_addresses')->onDelete('set null');
             $table->string('order_number')->unique();
-            $table->enum('type', ['table', 'delivery', 'takeaway'])->default('table');
+            $table->string('type')->default('table');
             $table->string('table_number')->nullable();
             $table->decimal('subtotal', 10, 2)->default(0);
             $table->decimal('tax_amount', 10, 2)->default(0);
             $table->decimal('discount_amount', 10, 2)->default(0);
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->decimal('delivery_charge', 10, 2)->default(0);
-            $table->enum('status', ['open', 'suspended', 'paid', 'completed', 'cancelled'])->default('open');
-            $table->enum('payment_status', ['unpaid', 'partial', 'paid'])->default('unpaid');
+            $table->string('status')->default('open');
+            $table->string('payment_status')->default('unpaid');
             $table->text('notes')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();

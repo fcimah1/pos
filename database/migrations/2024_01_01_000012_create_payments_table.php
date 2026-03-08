@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
             $table->foreignId('shift_id')->constrained('shifts')->onDelete('cascade');
-            $table->enum('method', ['cash', 'card', 'check', 'digital_wallet'])->default('cash');
+            $table->string('method')->default('cash');
             $table->decimal('amount', 10, 2);
             $table->string('reference_number')->nullable();
-            $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
+            $table->string('status')->default('pending');
             $table->text('notes')->nullable();
             $table->timestamps();
 

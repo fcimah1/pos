@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // إضافة حالات التجهيز والتوصيل إلى ENUM للحقل status
-        if (Schema::hasTable('orders')) {
+        if (Schema::hasTable('orders') && DB::getDriverName() !== 'sqlite') {
             DB::statement("
                 ALTER TABLE `orders`
                 MODIFY COLUMN `status`
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         // الرجوع إلى القيم السابقة بدون التجهيز/التوصيل
-        if (Schema::hasTable('orders')) {
+        if (Schema::hasTable('orders') && DB::getDriverName() !== 'sqlite') {
             DB::statement("
                 ALTER TABLE `orders`
                 MODIFY COLUMN `status`

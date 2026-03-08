@@ -18,7 +18,7 @@ class UsersSeeder extends Seeder
         ], [
             'name' => 'Admin',
             'email' => 'admin@example.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make(env('ADMIN_PASSWORD', '123456')),
             'branch_id' => $branchId,
             'role_id' => $roleId,
             'is_active' => true,

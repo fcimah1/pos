@@ -26,10 +26,20 @@ class StoreCustomerRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
-            'email' => 'required|string|max:255',
-            'branch_id' => 'required|exists:branches,id',
-            'is_active' => 'required|boolean',
+            'phone' => 'required|string|max:20|unique:customers,phone|regex:/^[0-9]+$/',
+            'phone2' => 'nullable|string|max:20|regex:/^[0-9]+$/',
+            'email' => 'nullable|email|max:255',
+            'special_mark' => 'nullable|string|max:500',
+            'branch_id' => 'sometimes|exists:branches,id',
+            'is_active' => 'sometimes|boolean',
+            'addresses' => 'nullable|array',
+            'addresses.*.address_line_1' => 'required|string|max:255',
+            'addresses.*.address_line_2' => 'nullable|string|max:255',
+            'addresses.*.floor_number' => 'nullable|string|max:50',
+            'addresses.*.apartment_number' => 'nullable|string|max:50',
+            'addresses.*.delivery_charge' => 'nullable|numeric|min:0',
+            'addresses.*.type' => 'required|in:home,work,other',
+            'addresses.*.is_default' => 'sometimes|boolean',
         ];
     }
 
@@ -37,47 +47,23 @@ class StoreCustomerRequest extends FormRequest
     {
         return [
             'name.required' => 'الاسم مطلوب',
-            'name.string' => 'الاسم يجب أن يكون نصاً',
-            'name.max' => 'الاسم يجب أن لا يتجاوز 255 حرفاً',
             'phone.required' => 'رقم الهاتف مطلوب',
-            'phone.string' => 'رقم الهاتف يجب أن يكون نصاً',
-            'phone.max' => 'رقم الهاتف يجب أن لا يتجاوز 255 حرفاً',
-            'email.required' => 'البريد الإلكتروني مطلوب',
-            'email.string' => 'البريد الإلكتروني يجب أن يكون نصاً',
-            'email.max' => 'البريد الإلكتروني يجب أن لا يتجاوز 255 حرفاً',
-            'branch_id.required' => 'الفرع مطلوب',
-            'branch_id.exists' => 'الفرع غير موجود',
-            'is_active.required' => 'الحالة مطلوبة',
-            'is_active.boolean' => 'الحالة يجب أن تكون قيمة منطقية',
+            'phone.unique' => 'رقم الهاتف موجود بالفعل قبل ذلك',
+            'phone.regex' => 'رقم الهاتف (الموبايل) يجب أن يحتوي على أرقام فقط',
+            'phone.max' => 'رقم الهاتف (الموبايل) يجب أن لا يتجاوز 20 رقم',
+            'phone2.regex' => 'رقم الموبايل 2 يجب أن يحتوي على أرقام فقط',
+            'phone2.max' => 'رقم الموبايل 2 يجب أن لا يتجاوز 20 رقم',
+            'addresses.*.address_line_1.required' => 'يجب إدخال العنوان لكل حقل مضاف',
+            'addresses.*.address_line_1.max' => 'العنوان طويل جداً (أقصى 255 حرف)',
+            'addresses.*.type.required' => 'يجب اختيار نوع العنوان',
+            'addresses.*.type.in' => 'نوع العنوان غير صالح',
         ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'name' => 'الاسم',
-            'phone' => 'رقم الهاتف',
-            'email' => 'البريد الإلكتروني',
-            'branch_id' => 'الفرع',
-            'is_active' => 'الحالة',
-        ];
-    }
-
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            if ($this->phone && Customer::where('phone', $this->phone)->exists()) {
-                $validator->errors()->add('phone', 'رقم الهاتف موجود بالفعل');
-            }
-            if ($this->email && Customer::where('email', $this->email)->exists()) {
-                $validator->errors()->add('email', 'البريد الإلكتروني موجود بالفعل');
-            }
-        });
     }
 
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
+            'success' => false,
             'message' => 'البيانات غير صحيحة',
             'errors' => $validator->errors(),
         ], 422));

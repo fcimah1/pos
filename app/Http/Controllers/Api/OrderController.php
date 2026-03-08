@@ -35,6 +35,12 @@ class OrderController
 
             return $this->successResponse($order, 'تم إنشاء الطلب بنجاح', 201);
         } catch (Throwable $e) {
+            Log::error('Error in OrderController@store: ' ,[
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return $this->handleException($e, 'فشل إنشاء الطلب');
         }
     }
@@ -54,6 +60,12 @@ class OrderController
             $orders = $this->repository->getAll($branchId, $filters);
             return $this->successResponse($orders);
         } catch (Throwable $e) {
+            Log::error('Error in OrderController@index: ' ,[
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return $this->handleException($e, 'فشل جلب الطلبات');
         }
     }
@@ -65,6 +77,12 @@ class OrderController
             $orders = $this->repository->getSuspended($branchId);
             return $this->successResponse($orders);
         } catch (Throwable $e) {
+            Log::error('Error in OrderController@suspended: ' ,[
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return $this->handleException($e, 'فشل جلب الطلبات المعلقة');
         }
     }
@@ -76,6 +94,12 @@ class OrderController
             $order = $this->repository->findById($id, $branchId);
             return $this->successResponse($order);
         } catch (Throwable $e) {
+            Log::error('Error in OrderController@show: ' ,[
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return $this->handleException($e, 'الطلب غير موجود');
         }
     }
@@ -94,6 +118,12 @@ class OrderController
 
             return $this->successResponse($order, 'تم تحديث الطلب بنجاح');
         } catch (Throwable $e) {
+            Log::error('Error in OrderController@update: ' ,[
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return $this->handleException($e, 'فشل تحديث الطلب');
         }
     }
@@ -107,6 +137,12 @@ class OrderController
             $order = $this->repository->updateStatus($id, $validated['status'], $branchId);
             return $this->successResponse($order, 'تم تحديث حالة الطلب بنجاح');
         } catch (Throwable $e) {
+            Log::error('Error in OrderController@updateStatus: ' ,[
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return $this->handleException($e, 'فشل تحديث حالة الطلب');
         }
     }
@@ -123,6 +159,12 @@ class OrderController
 
             return $this->successResponse(null, 'تم تسوية الطلبات بنجاح');
         } catch (Throwable $e) {
+            Log::error('Error in OrderController@settleOrders: ' ,[
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return $this->handleException($e, 'فشل تسوية الطلبات');
         }
     }

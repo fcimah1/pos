@@ -17,21 +17,24 @@ class CustomerAddressRequest extends FormRequest
     {
         $isUpdate = $this->isMethod('patch') || $this->isMethod('put');
         return [
-            'customer_id' => [$isUpdate ? 'sometimes' : 'required','integer','exists:customers,id'],
-            'type' => [$isUpdate ? 'sometimes' : 'required','in:home,work,other'],
-            'address_line_1' => [$isUpdate ? 'sometimes' : 'required','string','max:255'],
-            'address_line_2' => ['nullable','string','max:255'],
-            'city' => ['nullable','string','max:100'],
-            'state' => ['nullable','string','max:100'],
-            'postal_code' => ['nullable','string','max:20'],
-            'country' => ['nullable','string','max:100'],
-            'latitude' => ['nullable','numeric'],
-            'longitude' => ['nullable','numeric'],
-            'notes' => ['nullable','string'],
-            'is_default' => ['sometimes','boolean'],
+            'customer_id' => [$isUpdate ? 'sometimes' : 'required', 'integer', 'exists:customers,id'],
+            'type' => [$isUpdate ? 'sometimes' : 'required', 'in:home,work,other'],
+            'address_line_1' => [$isUpdate ? 'sometimes' : 'required', 'string', 'max:255'],
+            'address_line_2' => ['nullable', 'string', 'max:255'],
+            'floor_number' => ['nullable', 'string', 'max:50'],
+            'apartment_number' => ['nullable', 'string', 'max:50'],
+            'delivery_charge' => ['nullable', 'numeric', 'min:0'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'state' => ['nullable', 'string', 'max:100'],
+            'postal_code' => ['nullable', 'string', 'max:20'],
+            'country' => ['nullable', 'string', 'max:100'],
+            'latitude' => ['nullable', 'numeric'],
+            'longitude' => ['nullable', 'numeric'],
+            'notes' => ['nullable', 'string'],
+            'is_default' => ['sometimes', 'boolean'],
         ];
     }
-    
+
     public function messages()
     {
         return [
@@ -40,10 +43,14 @@ class CustomerAddressRequest extends FormRequest
             'address_line_1.required' => 'يجب إدخال السطر الأول من العنوان',
             'is_default.boolean' => 'يجب إدخال قيمة منطقية للعنوان الافتراضي',
             'type.in' => 'يجب إدخال نوع عنوانًا صالحًا',
+            'delivery_charge.numeric' => 'رسوم التوصيل يجب أن تكون رقماً',
+            'delivery_charge.min' => 'رسوم التوصيل لا يمكن أن تكون أقل من الصفر',
             'address_line_1.max' => 'يجب إدخال السطر الأول من العنوان أقصى 255 حرفًا',
             'address_line_2.max' => 'يجب إدخال السطر الثاني من العنوان أقصى 255 حرفًا',
+            'floor_number.max' => 'يجب إدخال الطابق أقصى 50 حرفًا',
+            'apartment_number.max' => 'يجب إدخال الشقة أقصى 50 حرفًا',
             'city.max' => 'يجب إدخال المدينة أقصى 100 حرفًا',
-            'state.max' => 'يجب إدخال الحالة أقصى 100 حرفًا',
+            'state.max' => 'يجب إدخال الولاية أقصى 100 حرفًا',
             'postal_code.max' => 'يجب إدخال الرمز البريدي أقصى 20 حرفًا',
             'country.max' => 'يجب إدخال البلد أقصى 100 حرفًا',
         ];
