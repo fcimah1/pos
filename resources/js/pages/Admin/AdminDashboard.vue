@@ -74,7 +74,7 @@
                     </svg>
                 </div>
             </div>
-            <h3 class="text-gray-400 text-sm font-bold font-tajawal">عدد الأصناف</h3>
+            <h3 class="text-gray-400 text-sm font-bold font-tajawal">عدد الاصناف</h3>
             <p class="text-2xl font-black text-white mt-1">{{ stats.products_count }} <span class="text-xs text-gray-500 font-normal">صنف</span></p>
         </div>
 

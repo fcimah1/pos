@@ -30,8 +30,8 @@
                         المخزون ▾
                     </button>
                     <div v-if="showInventory" class="absolute right-0 mt-2 w-56 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden">
+                        <button @click="$emit('go-to', '/admin/categories'); showInventory=false" class="block w-full text-right px-4 py-2 text-sm text-gray-300 hover:bg-gray-800">الاقسام</button>
                         <button @click="$emit('go-to', '/admin/products'); showInventory=false" class="block w-full text-right px-4 py-2 text-sm text-gray-300 hover:bg-gray-800">المنتجات</button>
-                        <button @click="$emit('go-to', '/admin/categories'); showInventory=false" class="block w-full text-right px-4 py-2 text-sm text-gray-300 hover:bg-gray-800">الأصناف</button>
                     </div>
                 </div>
                 <button 

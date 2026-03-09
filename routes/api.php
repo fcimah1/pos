@@ -77,6 +77,11 @@ Route::middleware(['web'])->group(function () {
     Route::patch('/expenses/{id}', [ExpenseController::class, 'update']);
 
     // الموظفون والنظام الهرمي
+    Route::get('/employees', [EmployeeController::class, 'index']);
+    Route::post('/employees', [EmployeeController::class, 'store']);
+    Route::post('/employees/{id}', [EmployeeController::class, 'update']); // Frontend uses POST with _method=PUT
+    Route::put('/employees/{id}', [EmployeeController::class, 'update']);
+    Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
     Route::get('/employees/visible', [EmployeeController::class, 'visible']);
     Route::get('/employees/{userId}/backups', [EmployeeController::class, 'backups']);
 });

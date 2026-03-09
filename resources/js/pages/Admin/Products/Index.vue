@@ -30,7 +30,7 @@
                 v-model="filterCategory"
                 class="bg-gray-900/50 text-white px-4 py-2.5 rounded-xl border-gray-700 focus:ring-2 focus:ring-blue-500 transition-all text-right"
             >
-                <option value="">كل الأصناف</option>
+                <option value="">كل الاقسام</option>
                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">
                     {{ cat.name }}
                 </option>

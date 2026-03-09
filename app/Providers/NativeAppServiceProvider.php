@@ -17,8 +17,11 @@ class NativeAppServiceProvider implements ProvidesPhpIni
         // Run migrations and seed data automatically if the database is empty
         // This ensures the standalone .exe works offline immediately after installation
         try {
-            if (!\Illuminate\Support\Facades\Schema::hasTable('users')) {
-                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            // Always run migrations to ensure the schema is up to date
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+
+            // Seed only if the users table is empty
+            if (\Illuminate\Support\Facades\DB::table('users')->count() === 0) {
                 \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
             }
         } catch (\Exception $e) {

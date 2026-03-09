@@ -17,11 +17,11 @@
             </div>
         </div>
 
-        <!-- قائمة الأصناف -->
+        <!-- قائمة الاقسام -->
         <div class="flex-1 min-h-0 overflow-y-auto p-4 space-y-2 bg-gray-50/30">
             <div v-if="invoice.length === 0" class="h-full flex flex-col items-center justify-center opacity-20 grayscale py-20 text-center">
                 <span class="text-6xl mb-4">🛒</span>
-                <p class="font-black text-gray-900">لا توجد أصناف حالياً</p>
+                <p class="font-black text-gray-900">لا توجد أقسام حالياً</p>
             </div>
             
             <div v-for="(item, index) in invoice" :key="index" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 hover:border-blue-300 transition-all group relative overflow-hidden">

@@ -1,7 +1,7 @@
 <template>
     <div class="space-y-6 animate-fade-in text-right" dir="rtl">
         <div class="flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-white font-tajawal">إدارة الأصناف</h1>
+            <h1 class="text-2xl font-bold text-white font-tajawal">إدارة الاقسام</h1>
             <button
                 @click="openModal()"
                 class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-900/20"
@@ -9,7 +9,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                إضافة صنف
+                إضافة قسم
             </button>
         </div>
 

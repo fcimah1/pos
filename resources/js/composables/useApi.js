@@ -49,17 +49,32 @@ export function useApi() {
                     return;
                 }
 
-                const errorMessage = data?.message || `Error: ${response.status}`;
+                let errorMessage = data?.message || `Error: ${response.status}`;
+                let errorHtml = `<strong>${errorMessage}</strong>`;
+
+                if (data?.errors) {
+                    const errorList = Object.values(data.errors).flat();
+                    if (errorList.length > 0) {
+                        errorHtml += `<div class="mt-4 text-sm text-red-400 text-right">`;
+                        errorList.forEach(err => {
+                            errorHtml += `<div class="flex items-center gap-2 mb-1 justify-end">
+                                <span>${err}</span>
+                                <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                            </div>`;
+                        });
+                        errorHtml += `</div>`;
+                    }
+                }
                 
                 Swal.fire({
                     icon: 'error',
                     title: 'خطأ!',
-                    text: errorMessage,
+                    html: errorHtml,
                     confirmButtonText: 'حسناً',
-                    background: '#1f2937', // لون داكن ليتناسب مع التصميم
+                    background: '#1f2937', 
                     color: '#fff',
                     customClass: {
-                        popup: 'rounded-2xl border border-gray-700 shadow-2xl'
+                        popup: 'rounded-2xl border border-gray-700 shadow-2xl font-tajawal'
                     }
                 });
 
