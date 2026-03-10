@@ -1,6 +1,6 @@
 <template>
     <div
-        class="flex flex-col h-screen overflow-hidden bg-gray-100 text-right"
+        class="flex flex-col min-h-screen overflow-x-hidden bg-gray-100 text-right lg:h-screen lg:overflow-hidden"
         dir="rtl"
     >
         <PosHeader
@@ -18,10 +18,10 @@
             @switch-shift="switchShift"
         />
 
-        <div class="flex flex-row-reverse flex-1 overflow-visible min-h-0">
+        <div class="flex flex-col lg:flex-row-reverse flex-1 min-h-0 lg:overflow-hidden">
             <!-- الشريط الجانبي للطلبات المعلقة -->
             <div
-                class="w-1/5 bg-gray-900 text-white flex flex-col border-r border-gray-700 shadow-2xl"
+                class="w-full lg:w-1/5 bg-gray-900 text-white flex flex-col border-r border-gray-700 shadow-2xl transition-all duration-300 h-48 lg:h-auto"
             >
                 <div
                     class="p-3 border-b border-gray-700 font-bold flex justify-between items-center bg-gray-800 gap-2"
@@ -130,7 +130,7 @@
                                     class="bg-gray-900/60 border border-gray-700 text-xs text-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
                                 >
                                     <option :value="null">اختر المندوب...</option>
-                                    <option v-for="d in drivers" :key="d.id" :value="d.id">{{ d.name }}</option>
+                                    <option v-for="d in activeDrivers" :key="d.id" :value="d.id">{{ d.name }}</option>
                                 </select>
                                 <button
                                     class="px-2.5 py-1 rounded-lg text-xs font-black bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition text-white disabled:opacity-50"
@@ -375,7 +375,7 @@
 
         <DriverSettlementModal
             :show="showDriverSettlement"
-            :drivers="drivers"
+            :drivers="activeDrivers"
             v-model:selected-driver-id="selectedDriverId"
             :orders="driverSettlementOrders"
             :loading="isLoading"
@@ -834,6 +834,7 @@ const initialExpense = ref(null);
 
 // الطيارون والحسابات
 const drivers = ref([]);
+const activeDrivers = computed(() => drivers.value.filter(d => !!d.is_active));
 const selectedDriverId = ref(null);
 const driverSettlementOrders = ref([]);
 

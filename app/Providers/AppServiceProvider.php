@@ -24,6 +24,12 @@ use App\Repository\ProductRepository;
 use App\Repository\ShiftRepository;
 use App\Repository\TableRepository;
 use App\Repository\UserRepository;
+use App\Repository\DeliveryPersonRepository;
+use App\Repository\Interface\DeliveryPersonRepositoryInterface;
+use App\Repository\SettingRepository;
+use App\Repository\Interface\SettingRepositoryInterface;
+use App\Repository\BranchRepository;
+use App\Repository\Interface\BranchRepositoryInterface;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -45,6 +51,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(TableRepositoryInterface::class, TableRepository::class);
         $this->app->singleton(DesignationRepositoryInterface::class, DesignationRepository::class);
         $this->app->singleton(DepartmentRepositoryInterface::class, DepartmentRepository::class);
+        $this->app->singleton(DeliveryPersonRepositoryInterface::class, DeliveryPersonRepository::class);
+        $this->app->singleton(SettingRepositoryInterface::class, SettingRepository::class);
+        $this->app->singleton(BranchRepositoryInterface::class, BranchRepository::class);
     }
 
     /**

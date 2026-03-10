@@ -10,16 +10,16 @@ class ShiftOpenRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() != null;
+        return true;
     }
 
     public function rules(): array
     {
         return [
-            'opening_cash' => ['required','numeric','min:0'],
+            'opening_cash' => ['required', 'numeric', 'min:0'],
         ];
     }
-    
+
     public function messages()
     {
         return [
@@ -28,7 +28,7 @@ class ShiftOpenRequest extends FormRequest
             'opening_cash.min' => 'المبلغ المفتوح يجب أن يكون أكبر من أو يساوي 0.',
         ];
     }
-    
+
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([

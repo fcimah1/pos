@@ -10,19 +10,19 @@ class DeliveryPersonRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() != null;
+        return true;
     }
 
     public function rules(): array
     {
         return [
-            'name' => ['required','string','max:255'],
-            'phone' => ['required','string','max:30'],
-            'email' => ['nullable','email'],
-            'vehicle_type' => ['nullable','string'],
-            'vehicle_number' => ['nullable','string'],
-            'status' => ['sometimes','in:available,on_delivery,offline'],
-            'is_active' => ['sometimes','boolean'],
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:30'],
+            'email' => ['nullable', 'email'],
+            'vehicle_type' => ['nullable', 'string'],
+            'vehicle_number' => ['nullable', 'string'],
+            'status' => ['sometimes', 'in:available,on_delivery,offline'],
+            'is_active' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -38,7 +38,7 @@ class DeliveryPersonRequest extends FormRequest
             'is_active.boolean' => 'يجب أن تكون حالة التوصيل منطقية.',
         ];
     }
-    
+
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([

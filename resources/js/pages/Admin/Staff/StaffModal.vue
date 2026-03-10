@@ -115,11 +115,26 @@ const form = ref({
     password: "password123"
 });
 
+const resetForm = () => {
+    form.value = { 
+        name: "", 
+        email: "", 
+        designation_id: null, 
+        password: "password123" 
+    };
+};
+
+watch(() => props.show, (isShown) => {
+    if (isShown && !props.staff) {
+        resetForm();
+    }
+});
+
 watch(() => props.staff, (newVal) => {
     if (newVal) {
         form.value = { ...newVal };
     } else {
-        form.value = { name: "", email: "", designation_id: null, password: "password123" };
+        resetForm();
     }
 }, { immediate: true });
 

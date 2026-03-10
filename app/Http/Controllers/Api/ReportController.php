@@ -13,7 +13,10 @@ class ReportController
 {
     public function daily(Request $request)
     {
-        $branchId = $request->user()->branch_id;
+        $branchId = $request->user()?->branch_id;
+        if (!$branchId) {
+            return response()->json(['error' => 'الفرع غير موجود'], 422);
+        }
         $date = $request->query('date', now()->toDateString());
         $shiftId = $request->query('shift_id');
 
@@ -113,7 +116,7 @@ class ReportController
 
         $rows = '';
         foreach ($paymentBreakdown as $m => $a) {
-            $rows .= "<tr><td style='padding:4px;border:1px solid #ccc'>".htmlspecialchars($m)."</td><td style='padding:4px;border:1px solid #ccc'>".number_format((float)$a,2)."</td></tr>";
+            $rows .= "<tr><td style='padding:4px;border:1px solid #ccc'>" . htmlspecialchars($m) . "</td><td style='padding:4px;border:1px solid #ccc'>" . number_format((float)$a, 2) . "</td></tr>";
         }
         if ($rows === '') $rows = "<tr><td colspan='2' style='padding:4px;border:1px solid #ccc;color:#666'>لا يوجد مدفوعات</td></tr>";
 
@@ -127,14 +130,14 @@ class ReportController
             <h3 style='text-align:center;font-family:aealarabiya;margin:0;'>تقرير " . ($shiftId ? "الوردية #$shiftId" : "اليوم") . "</h3>
             <div style='font-family:aealarabiya;text-align:right'>
                 <div><b>التاريخ:</b> {$date}</div>
-                ".($shiftId ? "<div><b>الوردية:</b> #{$shiftId}</div>" : "")."
+                " . ($shiftId ? "<div><b>الوردية:</b> #{$shiftId}</div>" : "") . "
             </div>
             <table style='width:100%;border-collapse:collapse;font-family:aealarabiya;margin-top:4px' dir='rtl'>
-                <tr><td style='padding:4px'>إجمالي المبيعات</td><td style='padding:4px;text-align:left'>".number_format($totalSales,2)." ج.م</td></tr>
-                <tr><td style='padding:4px'>الضريبة</td><td style='padding:4px;text-align:left'>".number_format($totalTax,2)." ج.م</td></tr>
+                <tr><td style='padding:4px'>إجمالي المبيعات</td><td style='padding:4px;text-align:left'>" . number_format($totalSales, 2) . " ج.م</td></tr>
+                <tr><td style='padding:4px'>الضريبة</td><td style='padding:4px;text-align:left'>" . number_format($totalTax, 2) . " ج.م</td></tr>
                 <tr><td style='padding:4px'>عدد الطلبات</td><td style='padding:4px;text-align:left'>{$orderCount}</td></tr>
-                <tr><td style='padding:4px'>المصاريف</td><td style='padding:4px;text-align:left'>".number_format($expenses,2)." ج.م</td></tr>
-                <tr><td style='padding:4px'>بعد المصاريف</td><td style='padding:4px;text-align:left'>".number_format($netCash,2)." ج.م</td></tr>
+                <tr><td style='padding:4px'>المصاريف</td><td style='padding:4px;text-align:left'>" . number_format($expenses, 2) . " ج.م</td></tr>
+                <tr><td style='padding:4px'>بعد المصاريف</td><td style='padding:4px;text-align:left'>" . number_format($netCash, 2) . " ج.م</td></tr>
             </table>
             <h4 style='font-family:aealarabiya;margin-top:6px;text-align:right'>طرق الدفع</h4>
             <table style='width:100%;border-collapse:collapse;font-family:aealarabiya' dir='rtl'>{$rows}</table>
@@ -164,7 +167,7 @@ class ReportController
             $query->whereDate('orders.created_at', $date);
         } else {
             $query->whereYear('orders.created_at', substr($month, 0, 4))
-                  ->whereMonth('orders.created_at', substr($month, 5, 2));
+                ->whereMonth('orders.created_at', substr($month, 5, 2));
         }
 
         $items = $query
@@ -186,7 +189,7 @@ class ReportController
         $items = $this->products($request)->getData(true);
         $rows = '';
         foreach ($items as $it) {
-            $rows .= "<tr><td style='padding:4px;border:1px solid #ccc'>".htmlspecialchars($it['product_name'])."</td><td style='padding:4px;border:1px solid #ccc'>".$it['total_qty']."</td><td style='padding:4px;border:1px solid #ccc'>".number_format((float)$it['total_amount'],2)."</td></tr>";
+            $rows .= "<tr><td style='padding:4px;border:1px solid #ccc'>" . htmlspecialchars($it['product_name']) . "</td><td style='padding:4px;border:1px solid #ccc'>" . $it['total_qty'] . "</td><td style='padding:4px;border:1px solid #ccc'>" . number_format((float)$it['total_amount'], 2) . "</td></tr>";
         }
         if ($rows === '') $rows = "<tr><td colspan='3' style='padding:4px;border:1px solid #ccc;color:#666'>لا يوجد مبيعات</td></tr>";
 
@@ -259,7 +262,7 @@ class ReportController
         $typeRows = '';
         foreach ($typeMap as $k => $label) {
             $val = (float)($typeSumsRaw[$k] ?? 0);
-            $typeRows .= "<tr><td style=\"padding:6px;border:1px solid #ccc\">{$label}</td><td style=\"padding:6px;border:1px solid #ccc\">".number_format($val,2)."</td></tr>";
+            $typeRows .= "<tr><td style=\"padding:6px;border:1px solid #ccc\">{$label}</td><td style=\"padding:6px;border:1px solid #ccc\">" . number_format($val, 2) . "</td></tr>";
         }
 
         // تجميع المصاريف حسب التصنيف
@@ -271,7 +274,7 @@ class ReportController
             ->toArray();
         $expenseRows = '';
         foreach ($expenseByCat as $cat => $amt) {
-            $expenseRows .= "<tr><td style=\"padding:6px;border:1px solid #ccc\">".htmlspecialchars($cat)."</td><td style=\"padding:6px;border:1px solid #ccc\">".number_format((float)$amt,2)."</td></tr>";
+            $expenseRows .= "<tr><td style=\"padding:6px;border:1px solid #ccc\">" . htmlspecialchars($cat) . "</td><td style=\"padding:6px;border:1px solid #ccc\">" . number_format((float)$amt, 2) . "</td></tr>";
         }
         if ($expenseRows === '') {
             $expenseRows = '<tr><td colspan="2" style="padding:6px;border:1px solid #ccc;color:#666">لا توجد مصاريف</td></tr>';
@@ -279,7 +282,7 @@ class ReportController
 
         $htmlRows = '';
         foreach ($paymentBreakdown as $method => $amount) {
-            $htmlRows .= "<tr><td style=\"padding:6px;border:1px solid #ccc\">".htmlspecialchars($method)."</td><td style=\"padding:6px;border:1px solid #ccc\">".number_format((float)$amount, 2)."</td></tr>";
+            $htmlRows .= "<tr><td style=\"padding:6px;border:1px solid #ccc\">" . htmlspecialchars($method) . "</td><td style=\"padding:6px;border:1px solid #ccc\">" . number_format((float)$amount, 2) . "</td></tr>";
         }
         if ($htmlRows === '') {
             $htmlRows = '<tr><td colspan="2" style="padding:6px;border:1px solid #ccc;color:#666">لا يوجد مدفوعات</td></tr>';
@@ -297,11 +300,11 @@ class ReportController
                 <div><b>وقت الإغلاق:</b> {$closedAt}</div>
             </div>
             <table style='width:100%;border-collapse:collapse;margin-top:10px;font-family:aealarabiya;' dir='rtl'>
-                <tr><th style='text-align:right;padding:6px;border:1px solid #ccc'>إجمالي المبيعات</th><td style='padding:6px;border:1px solid #ccc'>".number_format($totalSales,2)." ج.م</td></tr>
-                <tr><th style='text-align:right;padding:6px;border:1px solid #ccc'>الضريبة</th><td style='padding:6px;border:1px solid #ccc'>".number_format($totalTax,2)." ج.م</td></tr>
+                <tr><th style='text-align:right;padding:6px;border:1px solid #ccc'>إجمالي المبيعات</th><td style='padding:6px;border:1px solid #ccc'>" . number_format($totalSales, 2) . " ج.م</td></tr>
+                <tr><th style='text-align:right;padding:6px;border:1px solid #ccc'>الضريبة</th><td style='padding:6px;border:1px solid #ccc'>" . number_format($totalTax, 2) . " ج.م</td></tr>
                 <tr><th style='text-align:right;padding:6px;border:1px solid #ccc'>عدد الطلبات</th><td style='padding:6px;border:1px solid #ccc'>{$orderCount}</td></tr>
-                <tr><th style='text-align:right;padding:6px;border:1px solid #ccc'>المصاريف</th><td style='padding:6px;border:1px solid #ccc'>".number_format($expenses,2)." ج.م</td></tr>
-                <tr><th style='text-align:right;padding:6px;border:1px solid #ccc'>المبيعات بعد المصاريف</th><td style='padding:6px;border:1px solid #ccc'>".number_format($netCash,2)." ج.م</td></tr>
+                <tr><th style='text-align:right;padding:6px;border:1px solid #ccc'>المصاريف</th><td style='padding:6px;border:1px solid #ccc'>" . number_format($expenses, 2) . " ج.م</td></tr>
+                <tr><th style='text-align:right;padding:6px;border:1px solid #ccc'>المبيعات بعد المصاريف</th><td style='padding:6px;border:1px solid #ccc'>" . number_format($netCash, 2) . " ج.م</td></tr>
             </table>
             <h3 style='text-align:right;margin-top:15px;font-family:aealarabiya;'>تفصيل طرق الدفع</h3>
             <table style='width:100%;border-collapse:collapse;font-family:aealarabiya;' dir='rtl'>

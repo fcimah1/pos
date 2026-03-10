@@ -126,17 +126,26 @@ const fetchStats = async () => {
     try {
         // Fetch daily report for current branch
         const report = await apiCall("/reports/daily");
-        stats.value.total_sales = report.total_sales;
-        stats.value.orders_count = report.orders_count;
-
-        // Fetch counts for products and customers
-        const products = await apiCall("/products");
-        stats.value.products_count = (products.data || products).length;
-
-        const customers = await apiCall("/customers");
-        stats.value.customers_count = (customers.data || customers).length;
+        if (report) {
+            stats.value.total_sales = report.total_sales ?? 0;
+            stats.value.orders_count = report.orders_count ?? 0;
+        }
     } catch (err) {
-        console.error("Error fetching dashboard stats:", err);
+        console.error("Error fetching daily report:", err);
+    }
+
+    try {
+        const products = await apiCall("/products");
+        stats.value.products_count = (products?.data || products || []).length;
+    } catch (err) {
+        console.error("Error fetching products count:", err);
+    }
+
+    try {
+        const customers = await apiCall("/customers");
+        stats.value.customers_count = (customers?.data || customers || []).length;
+    } catch (err) {
+        console.error("Error fetching customers count:", err);
     }
 };
 </script>

@@ -14,6 +14,8 @@ use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\ExpenseController;
+use App\Http\Controllers\Api\CompanyController;
+use App\Http\Controllers\Api\BranchController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -56,9 +58,7 @@ Route::middleware(['web'])->group(function () {
     Route::patch('/customer-addresses/{id}', [CustomerAddressController::class, 'update']);
     Route::delete('/customer-addresses/{id}', [CustomerAddressController::class, 'destroy']);
 
-    Route::get('/delivery-persons', [DeliveryPersonController::class, 'index']);
-    Route::post('/delivery-persons', [DeliveryPersonController::class, 'store']);
-    Route::patch('/delivery-persons/{id}', [DeliveryPersonController::class, 'update']);
+    Route::apiResource('delivery-persons', DeliveryPersonController::class);
 
     Route::get('/reports/daily', [ReportController::class, 'daily']);
     Route::get('/reports/daily/pdf', [ReportController::class, 'dailyPdf']);
@@ -77,11 +77,12 @@ Route::middleware(['web'])->group(function () {
     Route::patch('/expenses/{id}', [ExpenseController::class, 'update']);
 
     // الموظفون والنظام الهرمي
-    Route::get('/employees', [EmployeeController::class, 'index']);
-    Route::post('/employees', [EmployeeController::class, 'store']);
-    Route::post('/employees/{id}', [EmployeeController::class, 'update']); // Frontend uses POST with _method=PUT
-    Route::put('/employees/{id}', [EmployeeController::class, 'update']);
-    Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
-    Route::get('/employees/visible', [EmployeeController::class, 'visible']);
-    Route::get('/employees/{userId}/backups', [EmployeeController::class, 'backups']);
+    Route::get('/visible-employees', [EmployeeController::class, 'visible']);
+    Route::get('/employee-backups/{userId}', [EmployeeController::class, 'backups']);
+    Route::apiResource('employees', EmployeeController::class);
+
+    // إعدادات الشركة والفروع
+    Route::get('/company/settings', [CompanyController::class, 'index']);
+    Route::post('/company/settings', [CompanyController::class, 'update']);
+    Route::apiResource('branches', BranchController::class);
 });

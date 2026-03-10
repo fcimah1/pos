@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-1 flex flex-col z-10 overflow-hidden min-h-0 font-tajawal">
+    <div class="flex-1 flex flex-col z-10 w-full min-h-[500px] lg:min-h-0 font-tajawal">
         <!-- شريط أزرار نوع الطلب الفاخر -->
         <div class="bg-white px-5 pt-4 pb-3 shadow-md flex gap-3 items-center border-b border-gray-100">
             <button
@@ -21,22 +21,22 @@
         <!-- شريط البحث والخيارات الإضافية -->
         <slot name="top-bar"></slot>
 
-        <div class="flex flex-1 overflow-hidden min-h-0">
+        <div class="flex flex-col lg:flex-row flex-1 overflow-hidden min-h-0">
             <!-- قائمة التصنيفات الفاخرة -->
-            <div class="w-1/5 bg-gray-50/50 border-l border-gray-100 p-4 space-y-3 overflow-y-auto min-h-0 shadow-inner">
+            <div class="w-full lg:w-1/5 bg-gray-50/50 border-b lg:border-b-0 lg:border-l border-gray-100 p-2 lg:p-4 flex flex-row lg:flex-col gap-2 lg:gap-3 overflow-x-auto lg:overflow-y-auto min-h-0 shadow-inner whitespace-nowrap lg:whitespace-normal large-scrollbar pb-4 lg:pb-0">
                 <button
                     v-for="(items, cat) in categories"
                     :key="cat"
                     @click="$emit('update:active-category', cat)"
                     :class="[
-                        'w-full py-4 px-4 rounded-2xl border-2 transition-all duration-300 font-black text-xs text-center flex flex-col items-center justify-center gap-2 group relative overflow-hidden',
+                        'min-w-[100px] lg:w-full py-2 lg:py-4 px-3 lg:px-4 rounded-xl lg:rounded-2xl border-2 transition-all duration-300 font-black text-xs text-center flex flex-col items-center justify-center gap-1 lg:gap-2 group relative overflow-hidden shrink-0',
                         activeCategory === cat
-                            ? 'bg-blue-600 text-white border-blue-600 shadow-2xl shadow-blue-200 scale-[1.02]'
+                            ? 'bg-blue-600 text-white border-blue-600 shadow-md lg:shadow-2xl shadow-blue-200 lg:scale-[1.02]'
                             : 'bg-white text-gray-500 border-transparent shadow-sm hover:border-blue-400/50 hover:text-blue-600 hover:bg-blue-50/30',
                     ]"
                 >
-                    <div v-if="activeCategory === cat" class="absolute top-0 right-0 w-8 h-8 bg-white/20 rounded-full -mr-4 -mt-4 blur-xl animate-pulse"></div>
-                    <span class="text-2xl transform group-hover:scale-125 transition-transform duration-300">
+                    <div v-if="activeCategory === cat" class="absolute top-0 right-0 w-8 h-8 bg-white/20 rounded-full -mr-4 -mt-4 blur-xl animate-pulse hidden lg:block"></div>
+                    <span class="text-xl lg:text-2xl transform group-hover:scale-110 lg:group-hover:scale-125 transition-transform duration-300">
                         {{ cat === 'بيتزا' ? '🍕' : (cat === 'وجبات سريعة' ? '🍔' : (cat === 'مقبلات' ? '🍟' : (cat === 'سلطات' ? '🥗' : (cat === 'مشروبات' ? '🥤' : (cat === 'حلويات' ? '🍰' : (cat === 'إفطار' ? '🍳' : '📁')))))) }}
                     </span>
                     <span class="leading-none tracking-tight">{{ cat }}</span>
@@ -44,12 +44,12 @@
             </div>
 
             <!-- شبكة المنتجات الفاخرة -->
-            <div class="flex-1 p-6 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-auto min-h-0 content-start bg-white select-none">
+            <div class="flex-1 p-3 lg:p-6 flex flex-row lg:grid lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-6 overflow-x-auto lg:overflow-y-auto lg:overflow-x-hidden min-h-0 content-start bg-white select-none large-scrollbar">
                 <button
                     v-for="item in products"
                     :key="item.id"
                     @click="$emit('add-item', item)"
-                    class="group bg-gray-50/50 rounded-[2rem] p-5 border-2 border-transparent hover:border-blue-500 hover:bg-white shadow-sm hover:shadow-[0_20px_50px_rgba(59,130,246,0.15)] hover:-translate-y-2 active:scale-95 transition-all duration-500 flex flex-col items-center justify-center gap-3 relative overflow-hidden"
+                    class="group bg-gray-50/50 rounded-[2rem] p-5 border-2 border-transparent hover:border-blue-500 hover:bg-white shadow-sm hover:shadow-[0_20px_50px_rgba(59,130,246,0.15)] hover:-translate-y-2 active:scale-95 transition-all duration-500 flex flex-col items-center justify-center gap-3 relative overflow-hidden shrink-0 min-w-[140px] lg:min-w-0"
                 >
                     <!-- تأثير ضوئي عند المرور -->
                     <div class="absolute -top-10 -right-10 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>

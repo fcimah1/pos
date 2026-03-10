@@ -7,6 +7,7 @@ import ProductIndex from './pages/Admin/Products/Index.vue';
 
 import CategoryIndex from './pages/Admin/Categories/Index.vue';
 import StaffIndex from './pages/Admin/Staff/Index.vue';
+import SettingsIndex from './pages/Admin/Settings/Index.vue';
 
 const routes = [
     {
@@ -28,6 +29,7 @@ const routes = [
             { path: 'products', name: 'Products', component: ProductIndex },
             { path: 'categories', name: 'Categories', component: CategoryIndex },
             { path: 'staff', name: 'Staff', component: StaffIndex },
+            { path: 'settings', name: 'Settings', component: SettingsIndex },
         ]
     }
 ];

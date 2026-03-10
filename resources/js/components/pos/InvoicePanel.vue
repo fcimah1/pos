@@ -1,5 +1,5 @@
 <template>
-    <div class="w-1/4 bg-white border-l border-gray-200 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20 overflow-hidden font-tajawal">
+    <div class="w-full lg:w-1/4 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20 font-tajawal lg:h-full shrink-0">
         <!-- هيدر الفاتورة الفاخر -->
         <div class="p-5 bg-gradient-to-r from-gray-900 to-gray-800 text-white shadow-lg relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>

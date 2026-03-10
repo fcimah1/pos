@@ -10,16 +10,16 @@ class ExpenseStoreRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() != null;
+        return true;
     }
 
     public function rules(): array
     {
         return [
-            'amount' => ['required','numeric','min:0'],
-            'category' => ['nullable','string','max:191'],
-            'notes' => ['nullable','string'],
-            'shift_id' => ['nullable','exists:shifts,id'],
+            'amount' => ['required', 'numeric', 'min:0'],
+            'category' => ['nullable', 'string', 'max:191'],
+            'notes' => ['nullable', 'string'],
+            'shift_id' => ['nullable', 'exists:shifts,id'],
         ];
     }
 
@@ -42,5 +42,4 @@ class ExpenseStoreRequest extends FormRequest
             'errors' => $validator->errors()
         ], 422));
     }
-
 }

@@ -12,6 +12,8 @@ class Branch extends Model
         'code',
         'address',
         'phone',
+        'phone_2',
+        'phone_3',
         'email',
         'tax_rate',
         'is_active',
