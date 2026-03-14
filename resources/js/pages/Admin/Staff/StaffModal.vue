@@ -55,7 +55,6 @@
                             <option :value="null">اختر المسمى الوظيفي...</option>
                             <option :value="1">مدير نظام</option>
                             <option :value="2">كاشير</option>
-                            <option :value="3">طيار (توصيل)</option>
                         </select>
                         <div class="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

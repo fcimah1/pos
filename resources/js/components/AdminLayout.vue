@@ -55,6 +55,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useApi } from "../composables/useApi";
+import { usePermissionService } from "../composables/usePermissionService";
 import PosHeader from "./pos/PosHeader.vue";
 import DriverSettlementModal from "./pos/DriverSettlementModal.vue";
 import ExpenseListModal from "./pos/ExpenseListModal.vue";

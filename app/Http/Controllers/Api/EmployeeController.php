@@ -23,7 +23,8 @@ class EmployeeController
      */
     public function index()
     {
-        return $this->successResponse($this->userRepository->all());
+        $users = $this->userRepository->all();
+        return $this->successResponse($users);
     }
 
     /**

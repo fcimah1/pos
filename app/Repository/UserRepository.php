@@ -31,7 +31,9 @@ class UserRepository implements UserRepositoryInterface
 
     public function all(): \Illuminate\Support\Collection
     {
-        return User::with(['role', 'designation', 'department'])->get();
+        return User::with(['role', 'designation' => function($q) {
+            $q->withCount('permissions');
+        }, 'department'])->get();
     }
 
     public function update(int $id, array $data): ?User

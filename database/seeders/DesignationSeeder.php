@@ -12,7 +12,6 @@ class DesignationSeeder extends Seeder
         $designations = [
             ['id' => 1, 'name' => 'مدير نظام', 'hierarchy_level' => 1],
             ['id' => 2, 'name' => 'كاشير', 'hierarchy_level' => 5],
-            ['id' => 3, 'name' => 'طيار (توصيل)', 'hierarchy_level' => 5],
             ['id' => 4, 'name' => 'مدير فرع', 'hierarchy_level' => 2],
         ];
 
