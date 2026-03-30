@@ -18,7 +18,8 @@ use App\Http\Controllers\Api\CompanyController;
 use App\Http\Controllers\Api\BranchController;
 use App\Http\Controllers\PermissionController;
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::get('/ping', function() { return 'pong'; })->middleware('auth:sanctum');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 // Routes محمية بـ Sanctum للـ mobile app
 Route::middleware('auth:sanctum')->group(function () {
@@ -29,8 +30,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
 });
 
-// Routes للـ POS
-Route::middleware(['web', 'auth'])->group(function () {
+// Routes للـ POS — Bearer token via Sanctum (Vue/useApi)، مع web لجلسة/CSRF عند الحاجة
+Route::middleware(['web', 'auth:sanctum'])->group(function () {
 
     // API Routes للصلاحيات
     Route::prefix('permissions')->group(function () {

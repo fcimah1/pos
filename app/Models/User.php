@@ -51,10 +51,10 @@ class User extends Authenticatable
         return $this->belongsTo(Branch::class);
     }
 
-    public function role(): BelongsTo
-    {
-        return $this->belongsTo(Role::class);
-    }
+    // public function role(): BelongsTo
+    // {
+    //     return $this->belongsTo(Role::class);
+    // }
 
     public function designation(): BelongsTo
     {
@@ -94,7 +94,7 @@ class User extends Authenticatable
             return true;
         }
 
-        return $this->designation && $this->designation->hasPermission($permissionName);
+        return $this->designation ? $this->designation->hasPermission($permissionName) : false;
     }
 
     /**
@@ -102,6 +102,6 @@ class User extends Authenticatable
      */
     public function isSystemAdmin(): bool
     {
-        return $this->designation && $this->designation->name === 'مدير نظام';
+        return $this->designation ? ($this->designation->name === 'مدير نظام') : false;
     }
 }

@@ -11,7 +11,7 @@ class ProductService
 
     public function getAll(int $branchId, array $filters = [])
     {
-        return $this->repo->getAll($branchId, $filters);
+        return $this->repo->getAll($branchId);
     }
 
     public function findById(int $id, int $branchId)
