@@ -19,52 +19,44 @@ class CheckPermission
      */
     public function handle(Request $request, Closure $next, string $permission)
     {
-        try {
-            // التحقق من وجود مستخدم مسجل الدخول
-            if (!Auth::check()) {
-                // إذا كان طلب API، إرجاع خطأ 401
-                if ($request->expectsJson()) {
-                    return response()->json(['message' => 'غير مصرح لك بالوصول'], 401);
-                }
-                // إذا كان طلب web، توجيه لصفحة تسجيل الدخول
-                return redirect()->guest(route('login'));
+        error_log("[DEBUG] CheckPermission handle start");
+        // التحقق من وجود مستخدم مسجل الدخول
+        if (!Auth::check()) {
+            error_log("[DEBUG] Auth check failed");
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'غير مصرح لك بالوصول'], 401);
             }
 
-            $user = Auth::user();
-
-            if (!$user instanceof User) {
-                if ($request->expectsJson()) {
-                    return response()->json(['message' => 'غير مصرح لك بالوصول'], 401);
-                }
-                return redirect()->guest(route('login'));
-            }
-
-            // التحقق من الصلاحيات
-            if (!$user->hasPermission($permission)) {
-                if ($request->expectsJson()) {
-                    return response()->json(['message' => 'ليس لديك صلاحية لتنفيذ هذا الإجراء'], 403);
-                }
-                
-                // التحقق مما إذا كان المستخدم مصادق كمدير
-                if (session('admin_authenticated')) {
-                    return $next($request);
-                }
-                
-                // تخزين الصفحة المطلوبة في الجلسة للعودة إليها بعد المصادقة
-                session(['admin_auth_redirect' => $request->fullUrl()]);
-                
-                // توجيه لصفحة مصادقة المدير
-                return redirect()->route('admin.auth');
-            }
-
-            return $next($request);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'error' => 'CheckPermission Middleware Exception',
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ], 500);
+            return redirect()->guest(route('login'));
         }
+
+        $user = Auth::user();
+
+        if (!$user instanceof User) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'غير مصرح لك بالوصول'], 401);
+            }
+
+            return redirect()->guest(route('login'));
+        }
+
+        error_log("[DEBUG] user HAS check for $permission");
+        if (!$user->hasPermission($permission)) {
+            error_log("[DEBUG] user DOES NOT have permission");
+            if ($request->expectsJson()) {
+                error_log("[DEBUG] returning json response");
+                return response()->json(['message' => 'ليس لديك صلاحية لتنفيذ هذا الإجراء'], 403);
+            }
+
+            if (session('admin_authenticated')) {
+                return $next($request);
+            }
+
+            session(['admin_auth_redirect' => $request->fullUrl()]);
+
+            return redirect()->route('admin.auth');
+        }
+
+        return $next($request);
     }
 }

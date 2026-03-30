@@ -23,8 +23,13 @@ class EmployeeController
      */
     public function index()
     {
-        $users = $this->userRepository->all();
-        return $this->successResponse($users);
+        try {
+            $users = $this->userRepository->all();
+
+            return $this->successResponse($users);
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'فشل جلب قائمة الموظفين');
+        }
     }
 
     /**

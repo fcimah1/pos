@@ -62,5 +62,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+        \Illuminate\Support\Facades\DB::listen(function ($query) {
+            error_log("[DB] " . $query->sql);
+        });
     }
 }

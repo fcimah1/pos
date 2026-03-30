@@ -25,13 +25,15 @@ class UserRepository implements UserRepositoryInterface
     public function getByBranchId(int $branchId): \Illuminate\Support\Collection
     {
         return User::where('branch_id', $branchId)
-            ->with(['role', 'designation', 'department'])
+            ->with(['designation' => function($q) {
+                $q->withCount('permissions');
+            }, 'department'])
             ->get();
     }
 
     public function all(): \Illuminate\Support\Collection
     {
-        return User::with(['role', 'designation' => function($q) {
+        return User::with(['designation' => function($q) {
             $q->withCount('permissions');
         }, 'department'])->get();
     }
